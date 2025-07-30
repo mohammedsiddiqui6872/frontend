@@ -9,9 +9,10 @@ interface LoginScreenProps {
   t: any;
   language: Language;
   setLanguage: (lang: Language) => void;
+  restaurantName?: string;
 }
 
-export const LoginScreen: React.FC<LoginScreenProps> = ({ t, language, setLanguage }) => {
+export const LoginScreen: React.FC<LoginScreenProps> = ({ t, language, setLanguage, restaurantName }) => {
   const { setAuth, rememberMe, setRememberMe, getLoginData } = useAuthStore();
   const [localLoginData, setLocalLoginData] = useState({
     employeeId: '',
@@ -88,7 +89,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ t, language, setLangua
             <ChefHat size={64} className="text-purple-600" />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            {t.loginTitle}
+            {restaurantName || t.loginTitle}
           </h1>
         </div>
         

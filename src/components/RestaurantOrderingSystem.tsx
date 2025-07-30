@@ -32,6 +32,7 @@ import { CustomerDetailForm, CustomerDetails } from './common/CustomerDetailForm
 
 import { translations } from '../utils/translations';
 import { OrderTracking } from '../hooks/useOrders';
+import { getCurrentTenant } from '../config/tenant.config';
 
 // Create query client outside of component
 const queryClient = new QueryClient({
@@ -128,10 +129,19 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
   const [isSubmittingCustomerDetails, setIsSubmittingCustomerDetails] = useState(false);
   const [isCheckingSession, setIsCheckingSession] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [restaurantName, setRestaurantName] = useState<string>('');
 
   const t = translations[language];
 
   // API URL from environment or default
+
+  // Get restaurant name from tenant config
+  useEffect(() => {
+    const tenant = getCurrentTenant();
+    if (tenant) {
+      setRestaurantName(tenant.name);
+    }
+  }, []);
 
   // Initialize dark mode from persisted state on mount
   useEffect(() => {
@@ -668,7 +678,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
   }, [categories, language]);
 
   if (!isAuthenticated) {
-    return <LoginScreen t={t} language={language} setLanguage={useUIStore.getState().setLanguage} />;
+    return <LoginScreen t={t} language={language} setLanguage={useUIStore.getState().setLanguage} restaurantName={restaurantName} />;
   }
 
   // Show loading state while checking for active session  

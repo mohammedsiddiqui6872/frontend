@@ -5,6 +5,7 @@ import { TableSelectionScreen } from './components/waiter/TableSelectionScreen';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useAuthStore } from './stores/authStore';
 import { translations } from './utils/translations';
+import { getCurrentTenant } from './config/tenant.config';
 import './index.css';
 import './theme.css';
 
@@ -14,8 +15,17 @@ function AppRoot() {
   const { isAuthenticated, employeeName } = useAuthStore();
   const [language, setLanguage] = useState<Language>('en');
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
+  const [restaurantName, setRestaurantName] = useState<string>('');
   
   const t = translations[language];
+  
+  // Get restaurant name from tenant config
+  useEffect(() => {
+    const tenant = getCurrentTenant();
+    if (tenant) {
+      setRestaurantName(tenant.name);
+    }
+  }, []);
 
   // Listen for auth changes
   useEffect(() => {
@@ -50,7 +60,7 @@ function AppRoot() {
   if (!isAuthenticated) {
     return (
       <ErrorBoundary>
-        <LoginScreen t={t} language={language} setLanguage={setLanguage} />
+        <LoginScreen t={t} language={language} setLanguage={setLanguage} restaurantName={restaurantName} />
       </ErrorBoundary>
     );
   }
