@@ -1,0 +1,61 @@
+{
+  "name": "restaurant-ordering-system",
+  "version": "2.0.0",
+  "private": true,
+  "dependencies": {
+    "@tanstack/react-query": "^5.82.0",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.68",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "crypto-js": "^4.2.0",
+    "lucide-react": "^0.303.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "react-virtualized-auto-sizer": "^1.0.26",
+    "react-window": "^1.8.11",
+    "socket.io-client": "^4.7.2",
+    "typescript": "^4.9.5",
+    "web-vitals": "^2.1.4",
+    "zustand": "^4.5.7"
+  },
+  "scripts": {
+    "start": "set PORT=3001 && react-scripts start",
+    "start:mughlaimagic": "set PORT=3001 && set HOST=mughlaimagic.localhost && react-scripts start",
+    "start:bellavista": "set PORT=3002 && set HOST=bellavista.localhost && react-scripts start",
+    "start:hardrockcafe": "set PORT=3003 && set HOST=hardrockcafe.localhost && react-scripts start",
+    "build": "react-scripts build",
+    "build:optimized": "GENERATE_SOURCEMAP=false react-scripts build",
+    "build:analyze": "ANALYZE=true npm run build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "serve:prod": "serve -s build -l 3000",
+    "lighthouse": "lighthouse http://localhost:3000 --view"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.2.1",
+    "@types/react-window": "^1.8.8"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
