@@ -1,4 +1,5 @@
 import { securityService } from './security.service';
+import { getCurrentTenant, getTenantHeaders } from '../config/tenant.config';
 
 const API_URL = process.env['REACT_APP_API_URL'] || 'https://restaurant-backend-2wea.onrender.com/api';
 
@@ -54,6 +55,15 @@ class EnhancedApiService {
     // Add CSRF token to headers
     const headers = new Headers(options.headers);
     headers.set('X-CSRF-Token', securityService.getCSRFToken());
+    
+    // Add tenant headers
+    const tenant = getCurrentTenant();
+    if (tenant) {
+      const tenantHeaders = getTenantHeaders(tenant);
+      Object.entries(tenantHeaders).forEach(([key, value]) => {
+        headers.set(key, value);
+      });
+    }
 
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
@@ -85,6 +95,13 @@ class EnhancedApiService {
     
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    // Add tenant headers
+    const tenant = getCurrentTenant();
+    if (tenant) {
+      const tenantHeaders = getTenantHeaders(tenant);
+      Object.assign(headers, tenantHeaders);
     }
     
     return headers;
