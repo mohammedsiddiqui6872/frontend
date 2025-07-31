@@ -1,11 +1,11 @@
 import axios from 'axios';
 import io from 'socket.io-client';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000';
+const API_URL = process.env.REACT_APP_API_URL || 'https://api.gritservices.ae';
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'https://api.gritservices.ae';
 
 export const api = axios.create({
-  baseURL: `${API_URL}/api`,  // Add /api here
+  baseURL: API_URL,  // API_URL already includes /api
   headers: {
     'Content-Type': 'application/json'
   }

@@ -135,7 +135,7 @@ class SecurityService {
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: https:",
         "font-src 'self'",
-        "connect-src 'self' wss: https://restaurant-backend-2wea.onrender.com",
+        "connect-src 'self' wss: https://api.gritservices.ae",
         "frame-ancestors 'none'",
         "base-uri 'self'",
         "form-action 'self'"

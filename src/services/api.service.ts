@@ -1,7 +1,7 @@
 import { securityService } from './security.service';
 import { getCurrentTenant, getTenantHeaders } from '../config/tenant.config';
 
-const API_URL = process.env['REACT_APP_API_URL'] || 'https://restaurant-backend-2wea.onrender.com/api';
+const API_URL = process.env['REACT_APP_API_URL'] || 'https://api.gritservices.ae/api';
 
 // Proper type definitions
 interface LoginRequest {

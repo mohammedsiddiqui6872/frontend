@@ -102,7 +102,7 @@ export const FeedbackModal = ({ t, customerSession, tableNumber }: FeedbackModal
     
     try {
       // Use the close endpoint which sets isActive to false
-      await fetch(`${process.env['REACT_APP_API_URL'] || 'https://restaurant-backend-2wea.onrender.com/api'}/customer-sessions/${customerSession._id}/close`, {
+      await fetch(`${process.env['REACT_APP_API_URL'] || 'https://api.gritservices.ae/api'}/customer-sessions/${customerSession._id}/close`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

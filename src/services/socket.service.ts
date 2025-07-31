@@ -8,7 +8,7 @@ class SocketService {
   private readonly MAX_RECONNECT_ATTEMPTS = 5;
   
   connect(authToken: string, tableNumber: string) {
-    const SOCKET_URL = process.env['REACT_APP_SOCKET_URL'] || 'https://restaurant-backend-2wea.onrender.com';
+    const SOCKET_URL = process.env['REACT_APP_SOCKET_URL'] || 'https://api.gritservices.ae';
     
     const socketOptions = {
       auth: { token: authToken },
