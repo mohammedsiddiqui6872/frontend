@@ -5,23 +5,27 @@ import { Utensils, UtensilsCrossed, Cake, Coffee, Pizza, Wine, Beer, Drumstick, 
 import { useAuthStore } from '../stores/authStore';
 import { useCartStore, MenuItem } from '../stores/cartStore';
 import { useUIStore } from '../stores/uiStore';
-import { useMenu } from '../hooks/useMenu';
+import { useGuestMenu } from '../hooks/useGuestMenu';
 import { useOrders } from '../hooks/useOrders';
 import { useNotifications } from '../hooks/useNotifications';
 import { usePlaceOrder } from '../hooks/usePlaceOrder';
-import { socketService } from '../services/socket.service.multi-tenant';
+import { guestSocketService } from '../services/guest-socket.service';
 import { apiService } from '../services/api.service.multi-tenant';
+import { guestApiService } from '../services/guest-api.service';
+import { initializeGuestSession, getGuestSession } from '../config/guest-mode.config';
 
-import { LoginScreen } from './auth/LoginScreen';
+// LoginScreen removed - guests don't need to login
 import { Header } from './Header';
 import { CategorySidebar } from './menu/CategorySidebar';
 import { MenuGrid } from './menu/MenuGrid';
+import { MenuUniverse } from './menu/MenuUniverse';
 import { OrderTrackingBar } from './orders/OrderTrackingBar';
 import { CartModal } from './modals/CartModal';
 import { CustomizationModal } from './modals/CustomizationModal';
 import { CheckoutModal } from './modals/CheckoutModal';
 import { FeedbackModal } from './modals/FeedbackModal';
 import { OrderHistoryModal } from './modals/OrderHistoryModal';
+import { FlavorJourneyModal } from './modals/FlavorJourneyModal';
 import { AIAssistantModal } from './modals/AIAssistantModal';
 import { TableServiceModal } from './modals/TableServiceModal';
 import { NotificationToast } from './common/NotificationToast';
@@ -93,7 +97,10 @@ interface RestaurantOrderingSystemInnerProps {
 
 // Inner component that uses React Query hooks
 const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps> = ({ tableNumber }) => {
-  const { isAuthenticated, authToken, logout } = useAuthStore();
+  // Initialize guest session
+  const [guestSession] = useState(() => initializeGuestSession(tableNumber));
+  const isGuest = true; // Always guest mode for frontend
+  const { logout } = useAuthStore(); // Keep for compatibility
   const { addToCart, clearCart } = useCartStore();
   const { 
     language, darkMode, setDarkMode, activeCategory, setActiveCategory, searchQuery,
@@ -105,7 +112,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
   } = useUIStore();
   
   // These hooks can now safely use React Query
-  const { data: menuData, isLoading, error, refetch } = useMenu();
+  const { data: menuData, isLoading, error, refetch } = useGuestMenu();
   const { activeOrders, cancelOrder, isCancelling, refetch: refetchOrders } = useOrders(tableNumber);
   const { notifications, addNotification, removeNotification } = useNotifications();
   const { placeOrder, isPlacing } = usePlaceOrder({ 
@@ -118,6 +125,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
   const [sendingServiceRequest, setSendingServiceRequest] = useState(false);
   const [logoutPassword, setLogoutPassword] = useState('');
   const [showLogoutPassword, setShowLogoutPassword] = useState(false);
+  const [menuMode, setMenuMode] = useState<'classic' | 'universe'>('classic');
   
   // Dynamic categories state
   const [categories, setCategories] = useState<Category[]>([]);
@@ -164,11 +172,11 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
 
   // Fetch categories from API
   const fetchCategories = async () => {
-    if (!isAuthenticated || !authToken) return;
+    // No auth check needed for guest mode
     
     try {
       setCategoriesLoading(true);
-      const data = await apiService.getCategories();
+      const data = await guestApiService.getCategories();
       
       if (data && Array.isArray(data)) {
         setCategories(data);
@@ -195,45 +203,45 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
 
   // Initialize socket connection
   useEffect(() => {
-    if (isAuthenticated && authToken && tableNumber) {
-      socketService.connect(authToken, tableNumber);
+    if (tableNumber && guestSession) {
+      guestSocketService.connect(guestSession.sessionId, tableNumber);
       
       // Socket event handlers
-      socketService.onTableStatusUpdate((data) => {
+      guestSocketService.onTableStatusUpdate((data) => {
         console.log('Table status update:', data);
       });
       
-      socketService.onMenuChanged(() => {
+      guestSocketService.onMenuChanged(() => {
         console.log('Menu changed, refreshing...');
         refetch();
         fetchCategories(); // Also refresh categories
       });
       
       return () => {
-        socketService.disconnect();
+        guestSocketService.disconnect();
       };
     }
     // Return undefined when condition is not met
     return undefined;
-  }, [isAuthenticated, authToken, tableNumber, refetch]);
+  }, [tableNumber, guestSession, refetch]);
 
   // Initialize socket connection when we have auth and table
   useEffect(() => {
-    if (isAuthenticated && authToken && tableNumber) {
-      socketService.connect(authToken, tableNumber);
+    if (tableNumber && guestSession) {
+      guestSocketService.connect(guestSession.sessionId, tableNumber);
       
       return () => {
-        socketService.disconnect();
+        guestSocketService.disconnect();
       };
     }
     // Return undefined when condition is not met
     return undefined;
-  }, [isAuthenticated, authToken, tableNumber]);
+  }, [tableNumber, guestSession]);
 
-  // Handle auth state
+  // Handle guest session state
   useEffect(() => {
-    // Only run once when authenticated
-    if (isAuthenticated && authToken && tableNumber && !isInitialized) {
+    // Only run once when guest session is ready
+    if (tableNumber && guestSession && !isInitialized) {
       setIsCheckingSession(true);
       console.log('Checking for active session on table:', tableNumber);
       
@@ -241,7 +249,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
       const checkActiveSession = async () => {
         try {
           console.log('Fetching active session for table:', tableNumber);
-          const data = await apiService.getActiveCustomerSession(tableNumber) as any;
+          const data = await guestApiService.getActiveCustomerSession(tableNumber) as any;
           console.log('Response data:', data);
           
           if (data && data.activeSession) {
@@ -292,7 +300,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
       checkActiveSession();
       fetchCategories(); // Fetch categories when authenticated
     }
-  }, [isAuthenticated, authToken, tableNumber, isInitialized]);
+  }, [tableNumber, guestSession, isInitialized]);
   
   // Handle customer form reset when welcome screen is shown
   useEffect(() => {
@@ -310,7 +318,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
 
   // Body overflow control
   useEffect(() => {
-    if (showWelcome || !isAuthenticated) {
+    if (showWelcome) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'auto';
@@ -318,7 +326,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
     return () => {
       document.body.style.overflow = 'auto';
     };
-  }, [showWelcome, isAuthenticated]);
+  }, [showWelcome]);
 
   // Dark mode effect - handles DOM manipulation
   useEffect(() => {
@@ -383,10 +391,10 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
         tableNumber,
         type,
         message,
-        waiterId: authToken
+        urgent: type === 'call-waiter' || type === 'emergency'
       };
 
-      const sent = socketService.emitCustomerRequest(requestData);
+      const sent = guestSocketService.emitCustomerRequest(requestData);
       
       if (sent) {
         if (!silent) {
@@ -399,7 +407,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
         return true;
       } else {
         // Fallback to API
-        await apiService.sendServiceRequest(requestData);
+        await guestApiService.callWaiter(requestData as any);
         if (!silent) {
           addNotification({
             type: 'success',
@@ -436,12 +444,10 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
     setIsSubmittingCustomerDetails(true);
     
     try {
-      const data = await apiService.createCustomerSession({
+      const data = await guestApiService.createCustomerSession({
         tableNumber,
         customerName: details.name,
-        customerPhone: details.phone,
-        customerEmail: details.email,
-        occupancy: details.occupancy
+        customerPhone: details.phone
       }) as any;
       
       if (!data || !data.session) {
@@ -677,9 +683,8 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
     }));
   }, [categories, language]);
 
-  if (!isAuthenticated) {
-    return <LoginScreen t={t} language={language} setLanguage={useUIStore.getState().setLanguage} restaurantName={restaurantName} />;
-  }
+  // Guest frontend doesn't require authentication
+  // Table number is passed from App.tsx based on QR code or tablet config
 
   // Show loading state while checking for active session  
   if (isCheckingSession && !isInitialized) {
@@ -749,16 +754,38 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
               
               <main className="flex-1 overflow-y-auto p-6">
                 <div className="container mx-auto">
-                  <h2 className="text-4xl font-bold mb-8 text-center">
-                    <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                      {searchQuery ? 'Search Results' : (language === 'ar' ? currentCategory?.nameAr : currentCategory?.name)}
-                    </span>
-                  </h2>
+                  <div className="flex justify-between items-center mb-8">
+                    <h2 className="text-4xl font-bold text-center flex-1">
+                      <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        {searchQuery ? 'Search Results' : (language === 'ar' ? currentCategory?.nameAr : currentCategory?.name)}
+                      </span>
+                    </h2>
+                    
+                    {/* Menu Mode Toggle */}
+                    <button
+                      onClick={() => setMenuMode(menuMode === 'classic' ? 'universe' : 'classic')}
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all ml-4"
+                    >
+                      <span className="text-xl">
+                        {menuMode === 'classic' ? '🌌' : '📋'}
+                      </span>
+                      <span className="text-sm font-medium">
+                        {menuMode === 'classic' ? 'Universe Mode' : 'Classic Mode'}
+                      </span>
+                    </button>
+                  </div>
 
                   {categoriesLoading ? (
                     <div className="flex justify-center items-center h-64">
                       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
                     </div>
+                  ) : menuMode === 'universe' ? (
+                    <MenuUniverse
+                      categories={categories}
+                      menuItems={filteredItems}
+                      onItemSelect={(item) => setShowCustomization(item)}
+                      userMood={customerSession?.mood || 'relaxed'}
+                    />
                   ) : (
                     <MenuGrid
                       items={filteredItems}
@@ -791,6 +818,11 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
           />
           <CheckoutModal t={t} onProcessPayment={handleCheckout} />
           <OrderHistoryModal t={t} onViewOrderDetails={setSelectedOrderDetails} />
+          <FlavorJourneyModal 
+            t={t} 
+            customerName={customerSession?.customerName || 'Guest'} 
+            menuItems={filteredItems}
+          />
           <AIAssistantModal t={t} />
           <TableServiceModal t={t} onServiceRequest={(type) => handleTableServiceRequest({ type })} />
           

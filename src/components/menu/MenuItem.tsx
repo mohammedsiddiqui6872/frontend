@@ -2,6 +2,7 @@ import { Star, Clock, Plus, Heart } from 'lucide-react';
 import { MenuItem as MenuItemType } from '../../stores/cartStore';
 import { useHapticFeedback } from '../../hooks/useHapticFeedback';
 import { announce } from '../../utils/accessibility';
+import { LazyImage } from '../common/LazyImage';
 
 interface MenuItemProps {
   item: MenuItemType;
@@ -44,10 +45,12 @@ export const MenuItem: React.FC<MenuItemProps> = ({
       aria-label={`${item.name}, ${discountedPrice} AED`}
     >
       <div className="relative h-56 overflow-hidden bg-gray-100">
-        <img
+        <LazyImage
           src={item.image}
           alt={item.name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+          width={400}
+          height={224}
           loading="lazy"
         />
         {item.isSpecial && (

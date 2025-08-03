@@ -20,6 +20,7 @@ interface UIStore {
   showFeedback: boolean;
   showCheckoutModal: boolean;
   showOrderHistory: boolean;
+  showFlavorJourney: boolean;
   showBillSplitModal: boolean;
   showThankYou: boolean;
   showNotifications: boolean;
@@ -51,6 +52,7 @@ interface UIStore {
   setShowFeedback: (show: boolean) => void;
   setShowCheckoutModal: (show: boolean) => void;
   setShowOrderHistory: (show: boolean) => void;
+  setShowFlavorJourney: (show: boolean) => void;
   setShowBillSplitModal: (show: boolean) => void;
   setShowThankYou: (show: boolean) => void;
   setShowNotifications: (show: boolean) => void;
@@ -84,6 +86,7 @@ export const useUIStore = create<UIStore>()(
       showFeedback: false,
       showCheckoutModal: false,
       showOrderHistory: false,
+      showFlavorJourney: false,
       showBillSplitModal: false,
       showThankYou: false,
       showNotifications: false,
@@ -113,6 +116,7 @@ export const useUIStore = create<UIStore>()(
       setShowFeedback: (show) => set({ showFeedback: show }),
       setShowCheckoutModal: (show) => set({ showCheckoutModal: show }),
       setShowOrderHistory: (show) => set({ showOrderHistory: show }),
+      setShowFlavorJourney: (show) => set({ showFlavorJourney: show }),
       setShowBillSplitModal: (show) => set({ showBillSplitModal: show }),
       setShowThankYou: (show) => set({ showThankYou: show }),
       setShowNotifications: (show) => set({ showNotifications: show }),

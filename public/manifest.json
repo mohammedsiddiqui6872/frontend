@@ -1,6 +1,7 @@
 {
-  "short_name": "GRITServices",
-  "name": "GRITServices",
+  "short_name": "GRIT Dining",
+  "name": "GRIT Services - Revolutionary Dining Experience",
+  "description": "Transform your dining experience with our immersive restaurant ordering system",
   "icons": [
     {
       "src": "favicon2.ico",
@@ -10,16 +11,55 @@
     {
       "src": "logo19.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo51.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
     }
   ],
   "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "theme_color": "#667eea",
+  "background_color": "#ffffff",
+  "categories": ["food", "restaurant", "dining", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "Quick Order",
+      "short_name": "Order",
+      "description": "Start a new order quickly",
+      "url": "/?action=order",
+      "icons": [{ "src": "logo19.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "View Menu",
+      "short_name": "Menu",
+      "description": "Browse our full menu",
+      "url": "/?action=menu",
+      "icons": [{ "src": "logo19.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Track Order",
+      "short_name": "Track",
+      "description": "Check your order status",
+      "url": "/?action=track",
+      "icons": [{ "src": "logo19.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "logo51.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "label": "Immersive menu experience"
+    }
+  ],
+  "prefer_related_applications": false,
+  "scope": "/",
+  "lang": "en-US",
+  "dir": "ltr"
 }

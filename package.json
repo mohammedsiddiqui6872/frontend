@@ -11,7 +11,9 @@
     "@types/node": "^16.18.68",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
+    "axios": "^1.11.0",
     "crypto-js": "^4.2.0",
+    "framer-motion": "^12.23.12",
     "lucide-react": "^0.303.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -24,21 +26,25 @@
     "zustand": "^4.5.7"
   },
   "scripts": {
-    "start": "set PORT=3001 && react-scripts start",
-    "start:mughlaimagic": "set PORT=3001 && set HOST=mughlaimagic.localhost && react-scripts start",
-    "start:bellavista": "set PORT=3002 && set HOST=bellavista.localhost && react-scripts start",
-    "start:hardrockcafe": "set PORT=3003 && set HOST=hardrockcafe.localhost && react-scripts start",
-    "build": "react-scripts build",
-    "build:optimized": "GENERATE_SOURCEMAP=false react-scripts build",
+    "start": "set PORT=3001 && craco start",
+    "start:mughlaimagic": "set PORT=3001 && set HOST=mughlaimagic.localhost && craco start",
+    "start:bellavista": "set PORT=3002 && set HOST=bellavista.localhost && craco start",
+    "start:hardrockcafe": "set PORT=3003 && set HOST=hardrockcafe.localhost && craco start",
+    "build": "craco build",
+    "build:optimized": "GENERATE_SOURCEMAP=false craco build",
     "build:analyze": "ANALYZE=true npm run build",
-    "test": "react-scripts test",
+    "test": "craco test",
     "eject": "react-scripts eject",
     "serve:prod": "serve -s build -l 3000",
     "lighthouse": "lighthouse http://localhost:3000 --view"
   },
   "devDependencies": {
+    "@craco/craco": "^7.1.0",
     "@types/crypto-js": "^4.2.1",
-    "@types/react-window": "^1.8.8"
+    "@types/react-window": "^1.8.8",
+    "compression-webpack-plugin": "^11.1.0",
+    "terser-webpack-plugin": "^5.3.14",
+    "webpack-bundle-analyzer": "^4.10.2"
   },
   "eslintConfig": {
     "extends": [

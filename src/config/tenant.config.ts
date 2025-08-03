@@ -1,4 +1,6 @@
 // Multi-tenant configuration
+import { applyTenantTheme as applyEnhancedTheme } from './tenant-themes';
+
 export interface TenantConfig {
   tenantId: string;
   subdomain: string;
@@ -65,7 +67,10 @@ export function getCurrentTenant(): TenantConfig | null {
 export function applyTenantTheme(tenant: TenantConfig) {
   const root = document.documentElement;
   
-  // Convert hex to RGB
+  // Apply enhanced theme if available
+  applyEnhancedTheme(tenant.subdomain);
+  
+  // Convert hex to RGB (fallback for tenants without enhanced themes)
   const hexToRgb = (hex: string) => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
@@ -77,7 +82,7 @@ export function applyTenantTheme(tenant: TenantConfig) {
   
   const rgb = hexToRgb(tenant.primaryColor);
   if (rgb) {
-    root.style.setProperty('--primary-color', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+    root.style.setProperty('--primary-color-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
     root.style.setProperty('--primary-color-hex', tenant.primaryColor);
   }
   

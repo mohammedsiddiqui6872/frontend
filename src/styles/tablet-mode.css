@@ -1,0 +1,214 @@
+/* Tablet Mode Specific Styles */
+
+/* Base tablet adjustments */
+[data-device-type="tablet"] {
+  /* Prevent text selection to avoid accidental selections */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  
+  /* Prevent pull-to-refresh */
+  overscroll-behavior-y: contain;
+}
+
+/* Larger touch targets for tablet */
+[data-device-type="tablet"] button,
+[data-device-type="tablet"] .clickable,
+[data-device-type="tablet"] .menu-item {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Enhanced menu grid for tablets */
+[data-device-type="tablet"] .menu-grid {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+/* Bigger fonts for tablet readability */
+[data-device-type="tablet"] {
+  font-size: 18px;
+}
+
+[data-device-type="tablet"] h1 {
+  font-size: 2.5rem;
+}
+
+[data-device-type="tablet"] h2 {
+  font-size: 2rem;
+}
+
+[data-device-type="tablet"] h3 {
+  font-size: 1.5rem;
+}
+
+/* Fixed header for tablets */
+[data-device-type="tablet"] .header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Larger cart button for tablets */
+[data-device-type="tablet"] .cart-button {
+  width: 80px;
+  height: 80px;
+  font-size: 24px;
+}
+
+/* Enhanced category sidebar for tablets */
+[data-device-type="tablet"] .category-sidebar {
+  min-width: 250px;
+}
+
+[data-device-type="tablet"] .category-item {
+  padding: 20px;
+  font-size: 20px;
+}
+
+/* Optimized modals for tablets */
+[data-device-type="tablet"] .modal-content {
+  max-width: 90%;
+  max-height: 90vh;
+}
+
+/* Prevent accidental dismissal */
+[data-device-type="tablet"] .modal-backdrop {
+  pointer-events: none;
+}
+
+[data-device-type="tablet"] .modal-close {
+  width: 60px;
+  height: 60px;
+  font-size: 30px;
+}
+
+/* Enhanced call waiter button */
+[data-device-type="tablet"] .call-waiter-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: #ff4444;
+  color: white;
+  font-size: 20px;
+  box-shadow: 0 4px 20px rgba(255, 68, 68, 0.4);
+  z-index: 90;
+}
+
+/* Tablet-specific animations */
+[data-device-type="tablet"] * {
+  /* Reduce animation duration for snappier feel */
+  animation-duration: 0.2s !important;
+  transition-duration: 0.2s !important;
+}
+
+/* Landscape optimization */
+@media (orientation: landscape) and (max-height: 1024px) {
+  [data-device-type="tablet"] .header {
+    padding: 10px 20px;
+  }
+  
+  [data-device-type="tablet"] .category-sidebar {
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+  }
+  
+  [data-device-type="tablet"] .menu-content {
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+  }
+}
+
+/* Disable hover effects on tablets */
+[data-device-type="tablet"] *:hover {
+  transform: none !important;
+}
+
+/* Enhanced touch feedback */
+[data-device-type="tablet"] button:active,
+[data-device-type="tablet"] .clickable:active {
+  transform: scale(0.95) !important;
+  opacity: 0.8;
+}
+
+/* Table indicator styling */
+[data-device-type="tablet"] .table-indicator {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  z-index: 1000;
+}
+
+/* Prevent scrollbar on tablets */
+[data-device-type="tablet"] ::-webkit-scrollbar {
+  display: none;
+}
+
+[data-device-type="tablet"] * {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Enhanced MenuUniverse for tablets */
+[data-device-type="tablet"] .menu-universe {
+  height: calc(100vh - 100px);
+}
+
+[data-device-type="tablet"] .category-island {
+  min-width: 180px;
+  min-height: 180px;
+  font-size: 22px;
+}
+
+[data-device-type="tablet"] .menu-item-planet {
+  width: 120px;
+  height: 120px;
+}
+
+/* QR code display for tablets */
+[data-device-type="tablet"] .qr-standee-mode {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  background: #4CAF50;
+  color: white;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+/* Kiosk mode helpers */
+[data-device-type="tablet"] body {
+  /* Prevent zoom */
+  touch-action: pan-x pan-y;
+}
+
+[data-device-type="tablet"] input,
+[data-device-type="tablet"] textarea {
+  /* Larger input fields */
+  font-size: 20px;
+  padding: 15px;
+}
+
+/* Enhanced loading states for tablets */
+[data-device-type="tablet"] .loading-spinner {
+  width: 80px;
+  height: 80px;
+}
+
+/* Tablet-optimized notifications */
+[data-device-type="tablet"] .notification-toast {
+  min-height: 80px;
+  font-size: 18px;
+  bottom: 140px; /* Above call waiter button */
+}

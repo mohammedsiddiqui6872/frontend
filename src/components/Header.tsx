@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { 
   Bot, Users, Phone, FileText, Search, Sun, Moon, Globe, Bell, 
-  History, ShoppingCart, User, MapPin, Gem, X, Check
+  History, ShoppingCart, User, MapPin, Gem, X, Check, Trophy
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useCartStore } from '../stores/cartStore';
@@ -27,7 +27,7 @@ export const Header = ({ t, taglines, onCallWaiter, onRequestBill, tableNumber }
     darkMode, setDarkMode, language, setLanguage, showLanguageMenu, setShowLanguageMenu,
     showNotifications, setShowNotifications, showProfileMenu, setShowProfileMenu,
     currentTagline, setCurrentTagline, callWaiterStatus, setShowAI, setShowTableService,
-    setShowOrderHistory, setShowCart
+    setShowOrderHistory, setShowFlavorJourney, setShowCart
   } = useUIStore();
 
   // Tagline rotation effect
@@ -210,6 +210,15 @@ export const Header = ({ t, taglines, onCallWaiter, onRequestBill, tableNumber }
                   {activeOrders.length}
                 </span>
               )}
+            </button>
+
+            <button
+              onClick={() => setShowFlavorJourney(true)}
+              className="p-1.5 md:p-2 transition-all hover:scale-110 relative"
+              style={{ background: 'none', border: 'none' }}
+              title="Flavor Journey"
+            >
+              <Trophy size={20} className="md:w-6 md:h-6 text-purple-600" />
             </button>
 
             <button

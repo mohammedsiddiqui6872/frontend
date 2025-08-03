@@ -1,5 +1,11 @@
 /* Restaurant Ordering System - Complete CSS */
 
+/* Import Revolutionary Design System */
+@import './styles/revolutionary-design.css';
+
+/* Import Tablet Mode Styles */
+@import './styles/tablet-mode.css';
+
 /* CSS Reset and Base Styles */
 * {
   margin: 0;
