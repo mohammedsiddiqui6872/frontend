@@ -171,6 +171,43 @@ class GuestApiService {
     const response = await this.axiosInstance.get('/guest/wait-times');
     return response.data;
   }
+
+  // Process Payment
+  async processPayment(data: {
+    orderId: string;
+    method: 'cash' | 'card';
+    amount: number;
+    tip?: number;
+  }) {
+    const response = await this.axiosInstance.post('/guest/payment', data);
+    return response.data;
+  }
+
+  // Checkout Customer Session
+  async checkoutCustomerSession(sessionId: string) {
+    const response = await this.axiosInstance.post(`/guest/customer-session/${sessionId}/checkout`);
+    return response.data;
+  }
+
+  // Close Customer Session
+  async closeCustomerSession(sessionId: string) {
+    const response = await this.axiosInstance.post(`/guest/customer-session/${sessionId}/close`);
+    return response.data;
+  }
+
+  // Submit Feedback
+  async submitFeedback(data: {
+    tableNumber: string;
+    rating: number;
+    foodQuality?: number;
+    serviceQuality?: number;
+    ambiance?: number;
+    comments?: string;
+    orderId?: string;
+  }) {
+    const response = await this.axiosInstance.post('/guest/feedback', data);
+    return response.data;
+  }
 }
 
 export const guestApiService = new GuestApiService();

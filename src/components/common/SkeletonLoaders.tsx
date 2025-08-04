@@ -1,4 +1,6 @@
 
+import React from 'react';
+
 // Skeleton base component with shimmer effect
 const SkeletonBase: React.FC<{ className?: string }> = ({ className = '' }) => (
   <div className={`animate-pulse bg-gray-200 dark:bg-gray-700 ${className}`} />

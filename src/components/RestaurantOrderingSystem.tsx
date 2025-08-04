@@ -9,9 +9,8 @@ import { useGuestStore } from '../stores/guestStore';
 import { useGuestMenu } from '../hooks/useGuestMenu';
 import { useOrders } from '../hooks/useOrders';
 import { useNotifications } from '../hooks/useNotifications';
-import { usePlaceOrder } from '../hooks/usePlaceOrder';
+import { useGuestPlaceOrder } from '../hooks/useGuestPlaceOrder';
 import { guestSocketService } from '../services/guest-socket.service';
-import { apiService } from '../services/api.service.multi-tenant';
 import { guestApiService } from '../services/guest-api.service';
 import { initializeGuestSession, getGuestSession } from '../config/guest-mode.config';
 
@@ -129,9 +128,9 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
   const { data: menuData, isLoading, error, refetch } = useGuestMenu();
   const { activeOrders, cancelOrder, isCancelling, refetch: refetchOrders } = useOrders(tableNumber);
   const { notifications, addNotification, removeNotification } = useNotifications();
-  const { placeOrder, isPlacing } = usePlaceOrder({ 
+  const { placeOrder, isPlacing } = useGuestPlaceOrder({ 
     tableNumber, 
-    customerSessionId: useAuthStore.getState().customerSessionId || undefined 
+    customerSessionId: customerSession?._id || customerSession?.sessionId
   });
   
   const [showCustomization, setShowCustomization] = useState<any | null>(null);
@@ -184,10 +183,30 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
     }
   }, []); // Only run once on mount
 
-  // Fetch categories from API
+  // Fetch categories from API with caching
   const fetchCategories = async () => {
     console.log('[RESTAURANT-ORDERING] Fetching categories...');
-    // No auth check needed for guest mode
+    
+    // Check cache first
+    const cacheKey = `categories-${guestSession?.tenantId}`;
+    const cachedData = sessionStorage.getItem(cacheKey);
+    if (cachedData) {
+      try {
+        const { data, timestamp } = JSON.parse(cachedData);
+        // Use cache if less than 5 minutes old
+        if (Date.now() - timestamp < 5 * 60 * 1000) {
+          console.log('[RESTAURANT-ORDERING] Using cached categories');
+          setCategories(data);
+          setCategoriesLoading(false);
+          if (data.length > 0 && !activeCategory) {
+            setActiveCategory(data[0].slug);
+          }
+          return;
+        }
+      } catch (e) {
+        console.error('[RESTAURANT-ORDERING] Cache parse error:', e);
+      }
+    }
     
     try {
       setCategoriesLoading(true);
@@ -197,6 +216,12 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
       if (data && Array.isArray(data)) {
         setCategories(data);
         console.log('[RESTAURANT-ORDERING] Set categories:', data.length, 'items');
+        
+        // Cache the data
+        sessionStorage.setItem(cacheKey, JSON.stringify({
+          data,
+          timestamp: Date.now()
+        }));
         
         // Set initial category if not set
         if (data.length > 0 && !activeCategory) {
@@ -599,7 +624,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
         throw new Error('No valid order ID found');
       }
       
-      await apiService.processPayment({
+      await guestApiService.processPayment({
         orderId: lastOrderId,
         method: method,
         amount: totalAmount,
@@ -611,7 +636,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
       
       // Checkout customer session
       if (customerSession?._id) {
-        await apiService.checkoutCustomerSession(customerSession._id);
+        await guestApiService.checkoutCustomerSession(customerSession._id);
       }
       
       setShowCheckoutModal(false);
@@ -634,7 +659,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
   // Handle feedback submit
   const handleFeedbackSubmit = async (feedbackData: any) => {
     try {
-      await apiService.submitFeedback({
+      await guestApiService.submitFeedback({
         tableNumber,
         ...feedbackData,
         orderId: activeOrders[activeOrders.length - 1]?._id
@@ -642,7 +667,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
       
       // Close customer session
       if (customerSession?._id) {
-        await apiService.closeCustomerSession(customerSession._id);
+        await guestApiService.closeCustomerSession(customerSession._id);
       }
       
       addNotification({
@@ -691,37 +716,11 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
     }
   };
 
+  // Guest mode doesn't need logout functionality
   const handleLogout = async () => {
-    if (!logoutPassword) {
-      alert('Please enter your password to logout');
-      return;
-    }
-
-    // Check if there's an active customer session
-    if (customerSession && customerSession.isActive) {
-      alert('Cannot logout while customer session is active. Please complete the current customer session first.');
-      setShowLogoutConfirm(false);
-      setLogoutPassword('');
-      return;
-    }
-
-    try {
-      await apiService.login({
-        email: useAuthStore.getState().employeeId,
-        password: logoutPassword,
-        tableNumber: ''
-      });
-
-      // Clear customer session only if logout is successful
-      localStorage.removeItem('customer-session');
-      
-      logout();
-      setShowLogoutConfirm(false);
-      setLogoutPassword('');
-      
-    } catch (error) {
-      alert('Invalid password. Please try again.');
-    }
+    // For guest mode, we don't have logout
+    // This function is kept for compatibility but does nothing
+    console.log('Logout not available in guest mode');
   };
 
   // Format categories for CategorySidebar
