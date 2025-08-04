@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { getCurrentTenant } from '../config/tenant.config';
 
 type Language = 'en' | 'es' | 'ru' | 'ar' | 'tr';
 type PopupType = 'tableService' | 'waiter' | 'waterRefill' | 'napkins' | 'utensils' | 'condiments';
@@ -136,7 +137,10 @@ export const useUIStore = create<UIStore>()(
       setPaymentCompleteTotal: (total) => set({ paymentCompleteTotal: total }),
     }),
     {
-      name: 'ui-preferences',
+      name: (() => {
+        const tenant = getCurrentTenant();
+        return tenant ? `ui-preferences-${tenant.tenantId}` : 'ui-preferences-default';
+      })(),
       partialize: (state) => ({
         darkMode: state.darkMode,
         language: state.language,

@@ -258,8 +258,11 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
 
   // Handle guest session state
   useEffect(() => {
+    // Validate tenant first
+    const isValidTenant = useGuestStore.getState().validateTenant();
+    
     // Check if we have a stored guest session
-    if (storedGuestSession && storedGuestSession.tableNumber === tableNumber && storedGuestSession.isActive) {
+    if (storedGuestSession && storedGuestSession.tableNumber === tableNumber && storedGuestSession.isActive && isValidTenant) {
       console.log('Found stored guest session, restoring...');
       setCustomerSession(storedGuestSession as any);
       setShowWelcome(false);

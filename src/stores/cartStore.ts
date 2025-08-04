@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { announce } from '../utils/accessibility';
+import { getCurrentTenant } from '../config/tenant.config';
 
 export interface MenuItem {
   id: number;
@@ -127,7 +128,10 @@ export const useCartStore = create<CartStore>()(
       },
     }),
     {
-      name: 'cart-storage',
+      name: (() => {
+        const tenant = getCurrentTenant();
+        return tenant ? `cart-${tenant.tenantId}` : 'cart-default';
+      })(),
     }
   )
 );

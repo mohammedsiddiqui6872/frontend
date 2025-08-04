@@ -44,16 +44,50 @@ export const MenuUniverse: React.FC<MenuUniverseProps> = ({
   const handleVoiceCommand = () => {
     setIsVoiceActive(!isVoiceActive);
     triggerHaptic('medium');
+    
     if (!isVoiceActive) {
-      // Initialize voice recognition
-      const recognition = new (window as any).webkitSpeechRecognition();
-      recognition.lang = 'en-US';
-      recognition.onresult = (event: any) => {
-        const command = event.results[0][0].transcript.toLowerCase();
-        console.log('Voice command:', command);
-        // Process voice commands
-      };
-      recognition.start();
+      // Check if browser supports speech recognition
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert('Voice commands are not supported in your browser. Try using Chrome or Edge.');
+        setIsVoiceActive(false);
+        return;
+      }
+      
+      try {
+        // Initialize voice recognition
+        const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        
+        recognition.onstart = () => {
+          console.log('Voice recognition started');
+        };
+        
+        recognition.onresult = (event: any) => {
+          const command = event.results[0][0].transcript.toLowerCase();
+          console.log('Voice command:', command);
+          alert(`You said: "${command}". Voice ordering coming soon!`);
+          setIsVoiceActive(false);
+        };
+        
+        recognition.onerror = (event: any) => {
+          console.error('Voice recognition error:', event.error);
+          alert('Voice recognition failed. Please try again.');
+          setIsVoiceActive(false);
+        };
+        
+        recognition.onend = () => {
+          setIsVoiceActive(false);
+        };
+        
+        recognition.start();
+      } catch (error) {
+        console.error('Failed to start voice recognition:', error);
+        alert('Failed to start voice recognition. Please check your microphone permissions.');
+        setIsVoiceActive(false);
+      }
     }
   };
 
@@ -178,15 +212,22 @@ export const MenuUniverse: React.FC<MenuUniverseProps> = ({
       </div>
 
       {/* Biometric Mood Indicator */}
-      <div 
+      <button 
         className="mood-indicator"
         style={{
-          animation: `pulse ${60 / userHeartRate}s ease-in-out infinite`
+          animation: `pulse ${60 / userHeartRate}s ease-in-out infinite`,
+          cursor: 'pointer',
+          border: 'none',
+          outline: 'none'
+        }}
+        onClick={() => {
+          triggerHaptic('light');
+          alert(`Your mood is ${userMood}! We'll recommend dishes that match your vibe.`);
         }}
       >
         <Heart className="w-6 h-6 text-white" />
         <span className="heart-rate">{Math.round(userHeartRate)}</span>
-      </div>
+      </button>
 
       {/* Voice Command Interface */}
       <button
@@ -227,7 +268,10 @@ export const MenuUniverse: React.FC<MenuUniverseProps> = ({
         style={{
           animation: 'float-rotate 4s ease-in-out infinite'
         }}
-        onClick={() => console.log('Open AI Assistant')}
+        onClick={() => {
+          triggerHaptic('medium');
+          alert('AI Assistant coming soon! This feature will help you discover dishes based on your preferences.');
+        }}
       >
         <Brain className="w-6 h-6" />
         <Sparkles className="sparkle-effect" />
