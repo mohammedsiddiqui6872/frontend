@@ -29,8 +29,8 @@ export class DebugLogger {
     
     // Log environment
     console.log('[ENV] NODE_ENV:', process.env.NODE_ENV);
-    console.log('[ENV] REACT_APP_API_URL:', process.env.REACT_APP_API_URL || '(not set)');
-    console.log('[ENV] Build timestamp:', process.env.REACT_APP_BUILD_TIME || '(not set)');
+    console.log('[ENV] REACT_APP_API_URL:', process.env['REACT_APP_API_URL'] || '(not set)');
+    console.log('[ENV] Build timestamp:', process.env['REACT_APP_BUILD_TIME'] || '(not set)');
     console.log('='.repeat(80));
     
     // Log browser storage
