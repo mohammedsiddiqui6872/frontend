@@ -124,15 +124,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
     showOrderHistory, setShowOrderHistory, showLogoutConfirm, setShowLogoutConfirm
   } = useUIStore();
   
-  // These hooks can now safely use React Query
-  const { data: menuData, isLoading, error, refetch } = useGuestMenu();
-  const { activeOrders, cancelOrder, isCancelling, refetch: refetchOrders } = useOrders(tableNumber);
-  const { notifications, addNotification, removeNotification } = useNotifications();
-  const { placeOrder, isPlacing } = useGuestPlaceOrder({ 
-    tableNumber, 
-    customerSessionId: customerSession?._id || customerSession?.sessionId
-  });
-  
+  // State declarations first
   const [showCustomization, setShowCustomization] = useState<any | null>(null);
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<OrderTracking | null>(null);
   const [sendingServiceRequest, setSendingServiceRequest] = useState(false);
@@ -153,6 +145,15 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
   const [restaurantName, setRestaurantName] = useState<string>('');
 
   const t = translations[language];
+
+  // These hooks can now safely use React Query
+  const { data: menuData, isLoading, error, refetch } = useGuestMenu();
+  const { activeOrders, cancelOrder, isCancelling, refetch: refetchOrders } = useOrders(tableNumber);
+  const { notifications, addNotification, removeNotification } = useNotifications();
+  const { placeOrder, isPlacing } = useGuestPlaceOrder({ 
+    tableNumber, 
+    customerSessionId: customerSession?._id || customerSession?.sessionId
+  });
 
   // API URL from environment or default
 
