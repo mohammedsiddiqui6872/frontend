@@ -4,6 +4,9 @@ import './index.css';
 import App from './App.multi-tenant';
 import { DebugLogger } from './utils/debug-logger';
 
+// Simple console log to verify code is running
+console.log('=== GRIT SERVICES FRONTEND STARTING ===');
+
 // Log phase: React initialization
 DebugLogger.logPhase('REACT_INIT');
 
