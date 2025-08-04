@@ -13,10 +13,21 @@ root.render(
   </React.StrictMode>
 );
 
-// Register service worker for PWA functionality
+// Unregister any existing service workers first to clear cache issues
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    registrations.forEach(registration => {
+      if (registration.active?.scriptURL.includes('service-worker.js')) {
+        registration.unregister();
+      }
+    });
+  });
+}
+
+// Register service worker for PWA functionality (only in production)
 if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
+    navigator.serviceWorker.register('/service-worker-simple.js')
       .then((registration) => {
         console.log('Service Worker registered:', registration);
         

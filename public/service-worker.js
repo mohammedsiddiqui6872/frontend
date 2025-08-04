@@ -8,9 +8,6 @@ const OFFLINE_URL = '/offline.html';
 // URLs to cache for offline access
 const urlsToCache = [
   '/',
-  '/index.html',
-  '/static/css/main.css',
-  '/static/js/main.js',
   '/manifest.json',
   '/logo19.png',
   '/logo51.png',
@@ -23,9 +20,20 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        // Cache files individually to handle failures gracefully
+        return Promise.all(
+          urlsToCache.map((url) => {
+            return cache.add(url).catch((error) => {
+              console.warn(`Failed to cache ${url}:`, error);
+              // Continue with other files even if one fails
+            });
+          })
+        );
       })
       .then(() => self.skipWaiting())
+      .catch((error) => {
+        console.error('Service worker installation failed:', error);
+      })
   );
 });
 
@@ -55,6 +63,9 @@ self.addEventListener('fetch', (event) => {
 
   // Skip chrome-extension and other non-http(s) requests
   if (!url.protocol.startsWith('http')) return;
+
+  // Skip cross-origin requests (like fonts, external resources)
+  if (!url.origin.includes(self.location.origin) && !url.origin.includes('gritservices.ae')) return;
 
   // Handle API requests differently
   if (url.pathname.startsWith('/api/')) {
