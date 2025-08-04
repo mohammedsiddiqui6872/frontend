@@ -1,5 +1,6 @@
 import { securityService } from './security.service';
 import { getCurrentTenant, getTenantHeaders, TenantConfig } from '../config/tenant.config';
+import { logger } from '../utils/logger';
 
 // Proper type definitions
 interface LoginRequest {
@@ -49,54 +50,65 @@ class MultiTenantApiService {
   private apiUrl: string = '';
 
   constructor() {
-    console.log('[API-SERVICE] Initializing multi-tenant API service...');
+    logger.debug('API-SERVICE', 'Initializing multi-tenant API service');
     this.initializeTenant();
   }
 
   private initializeTenant() {
-    console.log('[API-SERVICE] Initializing tenant...');
+    logger.debug('API-SERVICE', 'Initializing tenant');
     this.tenant = getCurrentTenant();
-    console.log('[API-SERVICE] Current tenant:', this.tenant);
+    logger.debug('API-SERVICE', 'Current tenant', this.tenant);
     
     if (!this.tenant) {
-      console.error('[API-SERVICE] ❌ No tenant found!');
+      logger.error('API-SERVICE', 'No tenant found');
       throw new Error('Unable to identify restaurant. Please check the URL.');
     }
     this.apiUrl = this.tenant.apiUrl;
-    console.log(`[API-SERVICE] ✅ Initialized API for tenant: ${this.tenant.name} - API URL: ${this.apiUrl}`);
+    logger.info('API-SERVICE', 'Initialized API for tenant', {
+      tenant: this.tenant.name,
+      apiUrl: this.apiUrl
+    });
   }
 
   private async makeRequest<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    console.log('[API-SERVICE] Making request:', {
+    logger.debug('API-SERVICE', 'Making request', {
       endpoint,
       method: options.method || 'GET',
       hasBody: !!options.body
     });
     
     if (!this.tenant) {
-      console.error('[API-SERVICE] ❌ Tenant not initialized');
+      logger.error('API-SERVICE', 'Tenant not initialized');
       throw new Error('Tenant not initialized');
     }
 
     const token = this.getToken();
     const csrfToken = this.getCSRFToken();
-    console.log('[API-SERVICE] Auth state - Has token:', !!token, 'Has CSRF:', !!csrfToken);
+    logger.debug('API-SERVICE', 'Auth state', {
+      hasToken: !!token,
+      hasCSRF: !!csrfToken
+    });
 
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...getTenantHeaders(this.tenant),
       ...(token && { 'Authorization': `Bearer ${token}` }),
       ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
-      ...options.headers,
+      ...(options.headers as Record<string, string> || {}),
     };
     
-    console.log('[API-SERVICE] Request headers:', headers);
+    logger.debug('API-SERVICE', 'Request headers prepared', {
+      tenantId: this.tenant.tenantId,
+      hasAuth: !!headers['Authorization']
+    });
 
     try {
-      console.log(`[API-SERVICE] Calling: ${this.apiUrl}${endpoint}`);
+      logger.debug('API-SERVICE', 'Calling endpoint', {
+        url: `${this.apiUrl}${endpoint}`
+      });
       
       const response = await fetch(`${this.apiUrl}${endpoint}`, {
         ...options,
@@ -125,34 +137,50 @@ class MultiTenantApiService {
 
       return response.json();
     } catch (error) {
-      console.error('API request failed:', error);
+      logger.error('API-SERVICE', 'API request failed', error);
       throw error;
     }
   }
 
   private getToken(): string | null {
-    return localStorage.getItem(`auth_token_${this.tenant?.tenantId}`);
+    if (!this.tenant) return null;
+    
+    // Use secure storage for sensitive tokens
+    const tokenData = securityService.secureStorage.getItem(`auth_token_${this.tenant.tenantId}`);
+    return tokenData?.token || null;
   }
 
   private setToken(token: string): void {
     if (this.tenant) {
-      localStorage.setItem(`auth_token_${this.tenant.tenantId}`, token);
+      // Store token with metadata in secure storage
+      securityService.secureStorage.setItem(`auth_token_${this.tenant.tenantId}`, {
+        token,
+        timestamp: Date.now(),
+        tenantId: this.tenant.tenantId
+      });
     }
   }
 
   private clearToken(): void {
     if (this.tenant) {
-      localStorage.removeItem(`auth_token_${this.tenant.tenantId}`);
+      securityService.secureStorage.removeItem(`auth_token_${this.tenant.tenantId}`);
     }
   }
 
   private getCSRFToken(): string | null {
-    return sessionStorage.getItem(`csrf_token_${this.tenant?.tenantId}`);
+    if (!this.tenant) return null;
+    
+    // CSRF tokens are less sensitive, but still use secure storage
+    const csrfData = securityService.secureStorage.getItem(`csrf_token_${this.tenant.tenantId}`);
+    return csrfData?.token || null;
   }
 
   private setCSRFToken(token: string): void {
     if (this.tenant) {
-      sessionStorage.setItem(`csrf_token_${this.tenant.tenantId}`, token);
+      securityService.secureStorage.setItem(`csrf_token_${this.tenant.tenantId}`, {
+        token,
+        timestamp: Date.now()
+      });
     }
   }
 

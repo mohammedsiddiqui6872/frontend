@@ -194,20 +194,6 @@ class GuestApiService {
     const response = await this.axiosInstance.post(`/guest/customer-session/${sessionId}/close`);
     return response.data;
   }
-
-  // Submit Feedback
-  async submitFeedback(data: {
-    tableNumber: string;
-    rating: number;
-    foodQuality?: number;
-    serviceQuality?: number;
-    ambiance?: number;
-    comments?: string;
-    orderId?: string;
-  }) {
-    const response = await this.axiosInstance.post('/guest/feedback', data);
-    return response.data;
-  }
 }
 
 export const guestApiService = new GuestApiService();

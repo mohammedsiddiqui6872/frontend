@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { shallow } from 'zustand/shallow';
 import { announce } from '../utils/accessibility';
 import { getCurrentTenant } from '../config/tenant.config';
 
@@ -36,7 +37,7 @@ export interface CartItem extends MenuItem {
   isUpdating?: boolean; // For optimistic updates
 }
 
-interface CartStore {
+export interface CartStore {
   cart: CartItem[];
   
   addToCart: (item: MenuItem, customizations?: { [key: string]: string }, specialRequests?: string) => void;
@@ -46,6 +47,13 @@ interface CartStore {
   getTotal: () => { subtotal: number; tax: number; total: number };
   getItemCount: () => number;
 }
+
+// Selectors for optimized subscriptions
+export const selectCart = (state: CartStore) => state.cart;
+export const selectCartTotal = (state: CartStore) => state.getTotal();
+export const selectCartItemCount = (state: CartStore) => state.getItemCount();
+export const selectCartItem = (cartId: string) => (state: CartStore) => 
+  state.cart.find(item => item.cartId === cartId);
 
 export const useCartStore = create<CartStore>()(
   persist(

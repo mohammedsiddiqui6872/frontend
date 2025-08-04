@@ -128,6 +128,21 @@ class GuestSocketService {
     });
   }
 
+  emitNewOrder(orderData: any) {
+    if (!this.socket || !this.socket.connected) {
+      console.error('Socket not connected');
+      return false;
+    }
+
+    this.socket.emit('new-order', {
+      ...orderData,
+      timestamp: new Date().toISOString(),
+      sessionId: getGuestSession()?.sessionId
+    });
+    
+    return true;
+  }
+
   // Event listeners
   onOrderStatusUpdate(callback: (data: any) => void) {
     this.socket?.on('order-status-update', callback);

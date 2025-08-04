@@ -1,0 +1,65 @@
+/* Skip Links - Accessibility feature for keyboard navigation */
+.skip-links {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 100%;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: #000;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 0 0 0.5rem 0;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Show skip link when focused */
+.skip-link:focus {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 9999;
+  outline: 3px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+/* Alternative position for subsequent links */
+.skip-link:nth-child(2):focus {
+  left: 200px;
+}
+
+.skip-link:nth-child(3):focus {
+  left: 400px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .skip-link {
+    background-color: #1f2937;
+    color: #f3f4f6;
+  }
+  
+  .skip-link:focus {
+    outline-color: #818cf8;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .skip-link {
+    border: 2px solid transparent;
+  }
+  
+  .skip-link:focus {
+    border-color: currentColor;
+  }
+}

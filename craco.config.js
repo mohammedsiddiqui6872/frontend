@@ -5,6 +5,13 @@ const TerserPlugin = require('terser-webpack-plugin');
 module.exports = {
   webpack: {
     configure: (webpackConfig, { env, paths }) => {
+      // Enable tree shaking
+      webpackConfig.optimization = {
+        ...webpackConfig.optimization,
+        usedExports: true,
+        sideEffects: false,
+      };
+
       // Production optimizations
       if (env === 'production') {
         // Optimize chunk splitting
@@ -21,7 +28,7 @@ module.exports = {
             },
             common: {
               name: 'common',
-              minChunks: 2,
+              minChunks: 3, // Increased from 2 to reduce small chunks
               chunks: 'all',
               priority: 10,
               reuseExistingChunk: true,

@@ -2,6 +2,7 @@
   "name": "restaurant-ordering-system",
   "version": "2.0.0",
   "private": true,
+  "sideEffects": false,
   "dependencies": {
     "@tanstack/react-query": "^5.82.0",
     "@testing-library/jest-dom": "^5.17.0",

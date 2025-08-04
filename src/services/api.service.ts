@@ -193,8 +193,9 @@ class EnhancedApiService {
     
     // Get auth token from storage if not provided
     if (!token) {
-      // Try to get from localStorage first (for admin panel)
-      const adminToken = localStorage.getItem('adminToken');
+      // Try to get from secure storage
+      const { default: secureStorage } = await import('./secure-storage.service');
+      const adminToken = secureStorage.getAuthToken();
       if (adminToken) {
         token = adminToken;
       } else {
