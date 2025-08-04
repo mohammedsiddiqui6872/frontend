@@ -30,6 +30,14 @@ class GuestApiService {
           config.headers['X-Tenant-Id'] = guestSession.tenantId;
           config.headers['X-Device-Type'] = guestSession.deviceType;
         }
+        
+        // Add tenant subdomain from hostname
+        const hostname = window.location.hostname;
+        const subdomain = hostname.split('.')[0];
+        if (subdomain && subdomain !== 'www' && subdomain !== 'localhost') {
+          config.headers['X-Tenant-Subdomain'] = subdomain;
+        }
+        
         return config;
       },
       (error) => {
