@@ -13,16 +13,23 @@ export interface TenantConfig {
 
 // Extract tenant from current domain
 export function getCurrentTenant(): TenantConfig | null {
+  console.log('[TENANT-CONFIG] Getting current tenant...');
   const hostname = window.location.hostname;
+  console.log('[TENANT-CONFIG] Hostname:', hostname);
+  
   const subdomain = hostname.split('.')[0];
+  console.log('[TENANT-CONFIG] Extracted subdomain:', subdomain);
+  console.log('[TENANT-CONFIG] Full hostname parts:', hostname.split('.'));
   
   // For local development
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    console.log('[TENANT-CONFIG] Running in local development mode');
     // Use query parameter for local testing
     const urlParams = new URLSearchParams(window.location.search);
     const testSubdomain = urlParams.get('tenant') || 'mughlaimagic';
+    console.log('[TENANT-CONFIG] Test subdomain:', testSubdomain);
     
-    return {
+    const localTenant = {
       tenantId: `rest_${testSubdomain}_001`,
       subdomain: testSubdomain,
       name: testSubdomain.charAt(0).toUpperCase() + testSubdomain.slice(1),
@@ -30,8 +37,11 @@ export function getCurrentTenant(): TenantConfig | null {
       currency: 'AED',
       apiUrl: process.env['REACT_APP_API_URL'] || 'http://localhost:5000/api'
     };
+    console.log('[TENANT-CONFIG] Local tenant config:', localTenant);
+    return localTenant;
   }
   
+  console.log('[TENANT-CONFIG] Running in production mode');
   // For production - extract from subdomain
   const tenantMap: Record<string, TenantConfig> = {
     'mughlaimagic': {
@@ -60,7 +70,15 @@ export function getCurrentTenant(): TenantConfig | null {
     }
   };
   
-  return subdomain ? tenantMap[subdomain] || null : null;
+  console.log('[TENANT-CONFIG] Available tenants:', Object.keys(tenantMap));
+  const foundTenant = subdomain ? tenantMap[subdomain] || null : null;
+  console.log('[TENANT-CONFIG] Found tenant:', foundTenant);
+  
+  if (!foundTenant && subdomain) {
+    console.error('[TENANT-CONFIG] ❌ No tenant mapping found for subdomain:', subdomain);
+  }
+  
+  return foundTenant;
 }
 
 // Apply tenant theme

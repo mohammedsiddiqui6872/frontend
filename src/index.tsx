@@ -2,16 +2,42 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App.multi-tenant';
+import { DebugLogger } from './utils/debug-logger';
+
+// Log phase: React initialization
+DebugLogger.logPhase('REACT_INIT');
+
+// Global error handler for debugging
+window.addEventListener('error', (event) => {
+  DebugLogger.logError('WINDOW_ERROR', {
+    message: event.message,
+    filename: event.filename,
+    lineno: event.lineno,
+    colno: event.colno,
+    error: event.error
+  });
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  DebugLogger.logError('UNHANDLED_PROMISE_REJECTION', {
+    reason: event.reason,
+    promise: event.promise
+  });
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
+DebugLogger.logPhase('ROOT_CREATED');
 
 root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
+
+DebugLogger.logPhase('APP_RENDERED');
 
 // Unregister any existing service workers first to clear cache issues
 if ('serviceWorker' in navigator) {

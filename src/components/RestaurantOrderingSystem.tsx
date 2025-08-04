@@ -98,7 +98,13 @@ interface RestaurantOrderingSystemInnerProps {
 // Inner component that uses React Query hooks
 const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps> = ({ tableNumber }) => {
   // Initialize guest session
-  const [guestSession] = useState(() => initializeGuestSession(tableNumber));
+  console.log('[RESTAURANT-ORDERING] Initializing with table:', tableNumber);
+  const [guestSession] = useState(() => {
+    console.log('[RESTAURANT-ORDERING] Creating guest session...');
+    const session = initializeGuestSession(tableNumber);
+    console.log('[RESTAURANT-ORDERING] Guest session created:', session);
+    return session;
+  });
   const isGuest = true; // Always guest mode for frontend
   const { logout } = useAuthStore(); // Keep for compatibility
   const { addToCart, clearCart } = useCartStore();
@@ -172,25 +178,29 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
 
   // Fetch categories from API
   const fetchCategories = async () => {
+    console.log('[RESTAURANT-ORDERING] Fetching categories...');
     // No auth check needed for guest mode
     
     try {
       setCategoriesLoading(true);
       const data = await guestApiService.getCategories();
+      console.log('[RESTAURANT-ORDERING] Categories received:', data);
       
       if (data && Array.isArray(data)) {
         setCategories(data);
+        console.log('[RESTAURANT-ORDERING] Set categories:', data.length, 'items');
         
         // Set initial category if not set
         if (data.length > 0 && !activeCategory) {
+          console.log('[RESTAURANT-ORDERING] Setting initial category:', data[0].slug);
           setActiveCategory(data[0].slug);
         }
       } else {
-        console.error('Invalid categories data:', data);
+        console.error('[RESTAURANT-ORDERING] Invalid categories data:', data);
         setCategories([]);
       }
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error('[RESTAURANT-ORDERING] ❌ Error fetching categories:', error);
       addNotification({
         type: 'error',
         title: 'Error',

@@ -49,28 +49,41 @@ class MultiTenantApiService {
   private apiUrl: string = '';
 
   constructor() {
+    console.log('[API-SERVICE] Initializing multi-tenant API service...');
     this.initializeTenant();
   }
 
   private initializeTenant() {
+    console.log('[API-SERVICE] Initializing tenant...');
     this.tenant = getCurrentTenant();
+    console.log('[API-SERVICE] Current tenant:', this.tenant);
+    
     if (!this.tenant) {
+      console.error('[API-SERVICE] ❌ No tenant found!');
       throw new Error('Unable to identify restaurant. Please check the URL.');
     }
     this.apiUrl = this.tenant.apiUrl;
-    console.log(`Initialized API for tenant: ${this.tenant.name}`);
+    console.log(`[API-SERVICE] ✅ Initialized API for tenant: ${this.tenant.name} - API URL: ${this.apiUrl}`);
   }
 
   private async makeRequest<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
+    console.log('[API-SERVICE] Making request:', {
+      endpoint,
+      method: options.method || 'GET',
+      hasBody: !!options.body
+    });
+    
     if (!this.tenant) {
+      console.error('[API-SERVICE] ❌ Tenant not initialized');
       throw new Error('Tenant not initialized');
     }
 
     const token = this.getToken();
     const csrfToken = this.getCSRFToken();
+    console.log('[API-SERVICE] Auth state - Has token:', !!token, 'Has CSRF:', !!csrfToken);
 
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -79,9 +92,11 @@ class MultiTenantApiService {
       ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
       ...options.headers,
     };
+    
+    console.log('[API-SERVICE] Request headers:', headers);
 
     try {
-      console.log(`Making request to: ${this.apiUrl}${endpoint}`);
+      console.log(`[API-SERVICE] Calling: ${this.apiUrl}${endpoint}`);
       
       const response = await fetch(`${this.apiUrl}${endpoint}`, {
         ...options,

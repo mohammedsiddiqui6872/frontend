@@ -35,17 +35,27 @@ function App() {
 
   useEffect(() => {
     const initializeTenant = async () => {
+      console.log('[APP] Starting app initialization...');
+      console.log('[APP] Current URL:', window.location.href);
+      console.log('[APP] Hostname:', window.location.hostname);
+      console.log('[APP] Pathname:', window.location.pathname);
+      console.log('[APP] Search params:', window.location.search);
+      
       try {
         // Get current tenant
+        console.log('[APP] Getting current tenant...');
         const tenant = getCurrentTenant();
+        console.log('[APP] Tenant found:', tenant);
         
         if (!tenant) {
+          console.error('[APP] No tenant found for current URL');
           setError('Unable to identify restaurant. Please check the URL.');
           setIsLoading(false);
           return;
         }
 
         // Apply tenant theme
+        console.log('[APP] Applying tenant theme...');
         applyTenantTheme(tenant);
         setTenantName(tenant.name);
         
@@ -53,16 +63,21 @@ function App() {
         const urlParams = new URLSearchParams(window.location.search);
         const urlTable = urlParams.get('table');
         const storedTable = localStorage.getItem('tableNumber');
+        console.log('[APP] URL table param:', urlTable);
+        console.log('[APP] Stored table number:', storedTable);
         
         // For tablets, we store the table number permanently
         if (urlTable) {
+          console.log('[APP] Using table from URL:', urlTable);
           setTableNumber(urlTable);
           // Store for tablet mode
           localStorage.setItem('tableNumber', urlTable);
         } else if (storedTable) {
+          console.log('[APP] Using stored table:', storedTable);
           setTableNumber(storedTable);
         } else {
           // No table number found
+          console.error('[APP] No table number found in URL or storage');
           setError('Please scan the QR code at your table or ask staff for assistance.');
           setIsLoading(false);
           return;
@@ -70,31 +85,37 @@ function App() {
 
         // Detect device type
         const userAgent = navigator.userAgent.toLowerCase();
+        console.log('[APP] User agent:', userAgent);
+        
         const isTablet = /ipad|android|android 3.0|xoom|sch-i800|playbook|tablet|kindle/i.test(userAgent);
         const isMobile = /iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(userAgent);
         
         if (isTablet) {
+          console.log('[APP] Device detected: TABLET');
           setDeviceType('tablet');
           // Lock orientation for tablets if possible
           if ('orientation' in window.screen && 'lock' in (window.screen as any).orientation) {
             (window.screen as any).orientation.lock('landscape').catch(() => {
-              console.log('Orientation lock not supported');
+              console.log('[APP] Orientation lock not supported');
             });
           }
         } else if (isMobile) {
+          console.log('[APP] Device detected: MOBILE');
           setDeviceType('mobile');
         } else {
+          console.log('[APP] Device detected: DESKTOP');
           setDeviceType('desktop');
         }
         
-        console.log(`Initialized app for ${tenant.name} - Table ${urlTable || storedTable}`);
+        console.log(`[APP] ✅ App initialized successfully - Restaurant: ${tenant.name} - Table: ${urlTable || storedTable}`);
         
         // Small delay to show loading state
         setTimeout(() => {
+          console.log('[APP] Loading complete, showing main app');
           setIsLoading(false);
         }, 500);
       } catch (err) {
-        console.error('Failed to initialize tenant:', err);
+        console.error('[APP] ❌ Failed to initialize tenant:', err);
         setError('Failed to load restaurant configuration.');
         setIsLoading(false);
       }
