@@ -21,7 +21,7 @@ export function generateGuestSessionId(tableNumber: string): string {
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(2, 9);
   const sessionId = `guest-${tableNumber}-${timestamp}-${random}`;
-  console.log('[GUEST-CONFIG] Generated session ID:', sessionId);
+  
   return sessionId;
 }
 
@@ -29,8 +29,7 @@ export function generateGuestSessionId(tableNumber: string): string {
  * Initialize guest session
  */
 export function initializeGuestSession(tableNumber: string): GuestConfig {
-  console.log('[GUEST-CONFIG] Initializing guest session for table:', tableNumber);
-  
+
   const sessionId = generateGuestSessionId(tableNumber);
   const deviceType = detectDeviceType();
   const hostname = window.location.hostname;
@@ -39,12 +38,7 @@ export function initializeGuestSession(tableNumber: string): GuestConfig {
   // Get the proper tenant configuration
   const tenant = getCurrentTenant();
   const tenantId = tenant?.tenantId || `rest_${subdomain}_001`;
-  
-  console.log('[GUEST-CONFIG] Device type detected:', deviceType);
-  console.log('[GUEST-CONFIG] Hostname:', hostname);
-  console.log('[GUEST-CONFIG] Subdomain:', subdomain);
-  console.log('[GUEST-CONFIG] TenantId:', tenantId);
-  
+
   const config: GuestConfig = {
     tableNumber,
     deviceType,
@@ -54,8 +48,7 @@ export function initializeGuestSession(tableNumber: string): GuestConfig {
   
   // Store in session storage
   sessionStorage.setItem('guestConfig', JSON.stringify(config));
-  console.log('[GUEST-CONFIG] Guest config stored:', config);
-  
+
   return config;
 }
 
@@ -65,7 +58,7 @@ export function initializeGuestSession(tableNumber: string): GuestConfig {
 export function getGuestSession(): GuestConfig | null {
   const stored = sessionStorage.getItem('guestConfig');
   const config = stored ? JSON.parse(stored) : null;
-  console.log('[GUEST-CONFIG] Retrieved guest session:', config);
+  
   return config;
 }
 

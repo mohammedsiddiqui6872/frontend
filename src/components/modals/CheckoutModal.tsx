@@ -32,7 +32,7 @@ export const CheckoutModal = ({ t, onProcessPayment }: CheckoutModalProps) => {
       setShowCheckoutModal(false);
       setPaymentMethod('');
     } catch (error) {
-      console.error('Payment error:', error);
+      
     } finally {
       setProcessingPayment(false);
     }

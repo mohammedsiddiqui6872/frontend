@@ -3,12 +3,13 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App.multi-tenant';
 import { DebugLogger } from './utils/debug-logger';
-
-// Simple console log to verify code is running
-console.log('=== GRIT SERVICES FRONTEND STARTING ===');
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+import { performanceMonitor } from './utils/performance/monitoring';
+import { logger } from './utils/logger';
 
 // Log phase: React initialization
 DebugLogger.logPhase('REACT_INIT');
+performanceMonitor.mark('app-init');
 
 // Global error handler for debugging
 window.addEventListener('error', (event) => {
@@ -58,8 +59,7 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker-simple.js')
       .then((registration) => {
-        console.log('Service Worker registered:', registration);
-        
+
         // Check for updates periodically
         setInterval(() => {
           registration.update();
@@ -81,13 +81,13 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
         });
       })
       .catch((error) => {
-        console.error('Service Worker registration failed:', error);
+        
       });
   });
   
   // Handle offline/online events
   window.addEventListener('online', async () => {
-    console.log('Back online!');
+    
     // Sync any offline data
     if ('serviceWorker' in navigator) {
       const registration = await navigator.serviceWorker.ready;
@@ -98,6 +98,6 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
   });
   
   window.addEventListener('offline', () => {
-    console.log('Gone offline!');
+    
   });
 }

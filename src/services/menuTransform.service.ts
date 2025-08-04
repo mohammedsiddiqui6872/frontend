@@ -60,7 +60,7 @@ class MenuTransformService {
   private transformMenuItem(backendItem: BackendMenuItem): MenuItem {
     // Ensure we have a valid _id
     if (!backendItem._id) {
-      console.error('Menu item missing _id:', backendItem);
+      
       throw new Error(`Menu item ${backendItem.name} is missing MongoDB _id`);
     }
 

@@ -61,7 +61,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ t, language, setLangua
       });
       
     } catch (error) {
-      console.error('Login error:', error);
+      
       setError(error instanceof Error ? error.message : 'Login failed. Please try again.');
     } finally {
       setIsLoading(false);

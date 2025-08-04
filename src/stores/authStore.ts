@@ -91,7 +91,7 @@ export const useAuthStore = create<AuthStore>()(
             const { apiService } = await import('../services/api.service');
             await apiService.logout(state.authToken);
           } catch (error) {
-            console.error('Logout API error:', error);
+            
             // Continue with local logout even if API fails
           }
         }

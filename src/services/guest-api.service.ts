@@ -20,43 +20,36 @@ class GuestApiService {
   });
 
   constructor() {
-    console.log('[GUEST-API] Initializing guest API service...');
-    console.log('[GUEST-API] Base URL:', API_URL);
-    
+
     // Add request interceptor to include guest session info
     this.axiosInstance.interceptors.request.use(
       (config) => {
-        console.log('[GUEST-API] Request interceptor - URL:', config.url);
-        console.log('[GUEST-API] Request method:', config.method);
-        
+
         const guestSession = getGuestSession();
-        console.log('[GUEST-API] Guest session:', guestSession);
-        
+
         if (guestSession) {
           config.headers['X-Guest-Session-Id'] = guestSession.sessionId;
           config.headers['X-Table-Number'] = guestSession.tableNumber;
           config.headers['X-Tenant-Id'] = guestSession.tenantId;
           config.headers['X-Device-Type'] = guestSession.deviceType;
-          console.log('[GUEST-API] Added guest session headers');
+          
         } else {
-          console.warn('[GUEST-API] No guest session found!');
+          
         }
         
         // Add tenant subdomain from hostname
         const hostname = window.location.hostname;
         const subdomain = hostname.split('.')[0];
-        console.log('[GUEST-API] Hostname:', hostname, 'Subdomain:', subdomain);
-        
+
         if (subdomain && subdomain !== 'www' && subdomain !== 'localhost') {
           config.headers['X-Tenant-Subdomain'] = subdomain;
-          console.log('[GUEST-API] Added tenant subdomain header:', subdomain);
+          
         }
-        
-        console.log('[GUEST-API] Final request headers:', config.headers);
+
         return config;
       },
       (error) => {
-        console.error('[GUEST-API] Request interceptor error:', error);
+        
         return Promise.reject(error);
       }
     );
@@ -64,21 +57,14 @@ class GuestApiService {
     // Add response interceptor for error handling
     this.axiosInstance.interceptors.response.use(
       (response) => {
-        console.log('[GUEST-API] Response received - Status:', response.status, 'URL:', response.config.url);
+        
         return response;
       },
       (error) => {
-        console.error('[GUEST-API] Response error:', {
-          url: error.config?.url,
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
-          headers: error.config?.headers
-        });
-        
+
         if (error.response?.status === 401) {
           // Guest sessions don't need re-authentication
-          console.log('[GUEST-API] Guest session expired, refreshing...');
+          
         }
         return Promise.reject(error);
       }

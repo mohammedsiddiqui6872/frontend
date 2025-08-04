@@ -62,18 +62,18 @@ export const MenuUniverse: React.FC<MenuUniverseProps> = ({
         recognition.interimResults = false;
         
         recognition.onstart = () => {
-          console.log('Voice recognition started');
+          
         };
         
         recognition.onresult = (event: any) => {
           const command = event.results[0][0].transcript.toLowerCase();
-          console.log('Voice command:', command);
+          
           alert(`You said: "${command}". Voice ordering coming soon!`);
           setIsVoiceActive(false);
         };
         
         recognition.onerror = (event: any) => {
-          console.error('Voice recognition error:', event.error);
+          
           alert('Voice recognition failed. Please try again.');
           setIsVoiceActive(false);
         };
@@ -84,7 +84,7 @@ export const MenuUniverse: React.FC<MenuUniverseProps> = ({
         
         recognition.start();
       } catch (error) {
-        console.error('Failed to start voice recognition:', error);
+        
         alert('Failed to start voice recognition. Please check your microphone permissions.');
         setIsVoiceActive(false);
       }

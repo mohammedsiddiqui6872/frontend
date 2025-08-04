@@ -32,18 +32,18 @@ class SocketService {
 
     // Setup event handlers
     this.socket.on('connect', () => {
-      console.log('✅ Main socket connected');
+      
       this.socket?.emit('join-table', tableNumber);
     });
 
     this.orderSocket.on('connect', () => {
-      console.log('✅ Order socket connected');
+      
       this.reconnectAttempts = 0;
       this.orderSocket?.emit('join-table', tableNumber);
     });
 
     this.orderSocket.on('connect_error', (error) => {
-      console.error('❌ Order socket connection error:', error.message);
+      
       this.reconnectAttempts++;
     });
   }

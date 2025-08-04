@@ -12,7 +12,7 @@ class GuestSocketService {
     const guestSession = getGuestSession();
     
     if (!tenant || !guestSession) {
-      console.error('Cannot connect socket: No tenant or guest session');
+      
       return;
     }
 
@@ -48,7 +48,7 @@ class GuestSocketService {
 
     // Setup event handlers
     this.socket.on('connect', () => {
-      console.log('✅ Guest socket connected for table:', tableNumber);
+      
       this.socket?.emit('guest-join-table', { 
         tableNumber, 
         sessionId: guestSessionId,
@@ -57,28 +57,28 @@ class GuestSocketService {
     });
 
     this.socket.on('disconnect', (reason) => {
-      console.log('❌ Guest socket disconnected:', reason);
+      
     });
 
     this.socket.on('reconnect', (attemptNumber) => {
-      console.log('🔄 Guest socket reconnected after', attemptNumber, 'attempts');
+      
     });
 
     this.socket.on('error', (error) => {
-      console.error('Socket error:', error);
+      
     });
 
     // Guest-specific events
     this.socket.on('waiter-assigned', (data) => {
-      console.log('Waiter assigned to your table:', data.waiterName);
+      
     });
 
     this.socket.on('waiter-on-way', (data) => {
-      console.log('Waiter is on the way:', data);
+      
     });
 
     this.socket.on('order-update', (data) => {
-      console.log('Order update:', data);
+      
     });
   }
 
@@ -97,7 +97,7 @@ class GuestSocketService {
     urgent?: boolean;
   }) {
     if (!this.socket || !this.socket.connected) {
-      console.error('Socket not connected');
+      
       return false;
     }
 
@@ -130,7 +130,7 @@ class GuestSocketService {
 
   emitNewOrder(orderData: any) {
     if (!this.socket || !this.socket.connected) {
-      console.error('Socket not connected');
+      
       return false;
     }
 

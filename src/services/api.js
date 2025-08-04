@@ -1,8 +1,8 @@
 import axios from 'axios';
 import io from 'socket.io-client';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://api.gritservices.ae';
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'https://api.gritservices.ae';
+const API_URL = process.env['REACT_APP_API_URL'] || 'https://api.gritservices.ae';
+const SOCKET_URL = process.env['REACT_APP_SOCKET_URL'] || 'https://api.gritservices.ae';
 
 export const api = axios.create({
   baseURL: API_URL,  // API_URL already includes /api

@@ -64,7 +64,7 @@ export const TableHandoverModal: React.FC<TableHandoverModalProps> = ({
       );
       setWaiters(availableWaiters);
     } catch (err) {
-      console.error('Error fetching waiters:', err);
+      
       setError('Failed to load available waiters');
     } finally {
       setLoading(false);
@@ -103,7 +103,7 @@ export const TableHandoverModal: React.FC<TableHandoverModalProps> = ({
       onHandoverComplete();
       onClose();
     } catch (err) {
-      console.error('Handover error:', err);
+      
       setError(err instanceof Error ? err.message : 'Failed to handover table');
     } finally {
       setSubmitting(false);

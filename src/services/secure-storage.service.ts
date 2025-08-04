@@ -67,7 +67,7 @@ class SecureStorageService {
         localStorage.setItem(this.prefix + key, JSON.stringify(item));
       }
     } catch (error) {
-      console.error('SecureStorage: Error storing item', error);
+      
     }
   }
 
@@ -107,7 +107,7 @@ class SecureStorageService {
 
       return JSON.parse(decryptedString);
     } catch (error) {
-      console.error('SecureStorage: Error retrieving item', error);
+      
       this.removeItem(key);
       return null;
     }

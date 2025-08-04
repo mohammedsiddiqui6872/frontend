@@ -206,7 +206,7 @@ class EnhancedApiService {
             token = authData.state.authToken;
           }
         } catch (error) {
-          console.warn('Failed to get auth token from secure storage:', error);
+          
         }
       }
     }

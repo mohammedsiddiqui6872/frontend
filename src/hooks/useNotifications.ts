@@ -31,7 +31,7 @@ const useNotificationStore = create<NotificationStore>((set) => ({
     
     // Play notification sound
     const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmFgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
-    audio.play().catch(e => console.log('Audio play failed:', e));
+    audio.play().catch(e => console.error('Failed to play notification sound:', e));
   },
   
   removeNotification: (id) => {

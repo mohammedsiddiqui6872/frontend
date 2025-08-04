@@ -89,7 +89,7 @@ class SecurityService {
       const jsonString = JSON.stringify(data);
       return CryptoJS.AES.encrypt(jsonString, this.encryptionKey).toString();
     } catch (error) {
-      console.error('Encryption error:', error);
+      
       return '';
     }
   }
@@ -101,13 +101,13 @@ class SecurityService {
       
       // Check if decryption resulted in empty string (wrong key)
       if (!decryptedString) {
-        console.warn('Decryption resulted in empty string - data may be from different session');
+        
         return null;
       }
       
       return JSON.parse(decryptedString);
     } catch (error) {
-      console.error('Decryption error:', error);
+      
       return null;
     }
   }
@@ -125,7 +125,7 @@ class SecurityService {
         if (!encrypted) return null;
         return this.decrypt(encrypted);
       } catch (error) {
-        console.warn('Failed to decrypt stored data, clearing corrupted data:', error);
+        
         localStorage.removeItem(`secure_${key}`);
         return null;
       }
@@ -173,7 +173,7 @@ class SecurityService {
     
     // For allowed tags, selectively unescape them (not recommended for user input)
     // This is a simplified version - for production use DOMPurify library
-    console.warn('sanitizeHTML with allowed tags should use DOMPurify library for production');
+    
     return escaped;
   }
 

@@ -57,7 +57,7 @@ export const usePlaceOrder = ({ tableNumber, customerSessionId }: PlaceOrderPara
       });
     },
     onError: (error) => {
-      console.error('Order placement error:', error);
+      
       addNotification({
         type: 'error',
         title: 'Order Failed',

@@ -38,7 +38,7 @@ export const useGuestStore = create<GuestStore>()(
         // Validate tenant matches
         const currentTenant = getCurrentTenant();
         if (currentTenant && session.tenantId !== currentTenant.tenantId) {
-          console.error('[GUEST-STORE] Tenant mismatch! Session tenant:', session.tenantId, 'Current tenant:', currentTenant.tenantId);
+          
           return;
         }
         
@@ -66,7 +66,7 @@ export const useGuestStore = create<GuestStore>()(
         
         // Check if session tenant matches current tenant
         if (state.guestSession.tenantId !== currentTenant.tenantId) {
-          console.warn('[GUEST-STORE] Session tenant mismatch, clearing session');
+          
           state.clearGuestSession();
           return false;
         }

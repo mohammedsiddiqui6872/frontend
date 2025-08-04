@@ -76,7 +76,7 @@ export const TableSelectionScreen: React.FC<TableSelectionScreenProps> = ({ onTa
         setAssignedTables(assignedTableNumbers);
       }
     } catch (err) {
-      console.error('Error fetching tables:', err);
+      
       setError(err instanceof Error ? err.message : 'Failed to load tables');
     } finally {
       setLoading(false);
@@ -125,7 +125,7 @@ export const TableSelectionScreen: React.FC<TableSelectionScreenProps> = ({ onTa
             await fetchTables(); // Refresh the table list
           }
         } catch (err) {
-          console.error('Error requesting table access:', err);
+          
         }
       }
       return;
@@ -149,7 +149,7 @@ export const TableSelectionScreen: React.FC<TableSelectionScreenProps> = ({ onTa
           throw new Error('Failed to assign table');
         }
       } catch (err) {
-        console.error('Error assigning table:', err);
+        
         return;
       }
     }
@@ -187,7 +187,7 @@ export const TableSelectionScreen: React.FC<TableSelectionScreenProps> = ({ onTa
 
       await fetchTables(); // Refresh the table list
     } catch (err) {
-      console.error('Error releasing table:', err);
+      
       alert(err instanceof Error ? err.message : 'Failed to release table');
     }
   };

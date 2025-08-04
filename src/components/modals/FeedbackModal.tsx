@@ -113,7 +113,7 @@ export const FeedbackModal = ({ t, customerSession, tableNumber }: FeedbackModal
       // Clear from localStorage
       localStorage.removeItem('customer-session');
     } catch (error) {
-      console.error('Error ending customer session:', error);
+      
     }
   };
 
@@ -159,7 +159,7 @@ export const FeedbackModal = ({ t, customerSession, tableNumber }: FeedbackModal
       }, 1500);
       
     } catch (error) {
-      console.error('Error submitting feedback:', error);
+      
       alert('Failed to submit feedback. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -174,7 +174,6 @@ export const FeedbackModal = ({ t, customerSession, tableNumber }: FeedbackModal
     // Clear localStorage 
     localStorage.removeItem('customer-session');
   };
-
 
   const categoryIcons = {
     foodQuality: '🍽️',

@@ -98,18 +98,18 @@ interface RestaurantOrderingSystemInnerProps {
 // Inner component that uses React Query hooks
 const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps> = ({ tableNumber }) => {
   // Initialize guest session
-  console.log('[RESTAURANT-ORDERING] Initializing with table:', tableNumber);
+  
   const { guestSession: storedGuestSession, setGuestSession: setStoredGuestSession, clearGuestSession: clearStoredGuestSession } = useGuestStore();
   const [guestSession] = useState(() => {
-    console.log('[RESTAURANT-ORDERING] Checking for stored guest session...');
+    
     // Check if we have a stored session for the same table
     if (storedGuestSession && storedGuestSession.tableNumber === tableNumber) {
-      console.log('[RESTAURANT-ORDERING] Using stored guest session:', storedGuestSession);
+      
       return storedGuestSession;
     }
-    console.log('[RESTAURANT-ORDERING] Creating new guest session...');
+    
     const session = initializeGuestSession(tableNumber);
-    console.log('[RESTAURANT-ORDERING] Guest session created:', session);
+    
     return session;
   });
   const isGuest = true; // Always guest mode for frontend
@@ -179,15 +179,14 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
           }
         }
       } catch (error) {
-        console.error('Error parsing persisted UI state:', error);
+        
       }
     }
   }, []); // Only run once on mount
 
   // Fetch categories from API with caching
   const fetchCategories = async () => {
-    console.log('[RESTAURANT-ORDERING] Fetching categories...');
-    
+
     // Check cache first
     const cacheKey = `categories-${guestSession?.tenantId}`;
     const cachedData = sessionStorage.getItem(cacheKey);
@@ -196,7 +195,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
         const { data, timestamp } = JSON.parse(cachedData);
         // Use cache if less than 5 minutes old
         if (Date.now() - timestamp < 5 * 60 * 1000) {
-          console.log('[RESTAURANT-ORDERING] Using cached categories');
+          
           setCategories(data);
           setCategoriesLoading(false);
           if (data.length > 0 && !activeCategory) {
@@ -205,19 +204,17 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
           return;
         }
       } catch (e) {
-        console.error('[RESTAURANT-ORDERING] Cache parse error:', e);
+        
       }
     }
     
     try {
       setCategoriesLoading(true);
       const data = await guestApiService.getCategories();
-      console.log('[RESTAURANT-ORDERING] Categories received:', data);
-      
+
       if (data && Array.isArray(data)) {
         setCategories(data);
-        console.log('[RESTAURANT-ORDERING] Set categories:', data.length, 'items');
-        
+
         // Cache the data
         sessionStorage.setItem(cacheKey, JSON.stringify({
           data,
@@ -226,15 +223,15 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
         
         // Set initial category if not set
         if (data.length > 0 && !activeCategory) {
-          console.log('[RESTAURANT-ORDERING] Setting initial category:', data[0].slug);
+          
           setActiveCategory(data[0].slug);
         }
       } else {
-        console.error('[RESTAURANT-ORDERING] Invalid categories data:', data);
+        
         setCategories([]);
       }
     } catch (error) {
-      console.error('[RESTAURANT-ORDERING] ❌ Error fetching categories:', error);
+      
       addNotification({
         type: 'error',
         title: 'Error',
@@ -252,11 +249,11 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
       
       // Socket event handlers
       guestSocketService.onTableStatusUpdate((data) => {
-        console.log('Table status update:', data);
+        
       });
       
       guestSocketService.onMenuChanged(() => {
-        console.log('Menu changed, refreshing...');
+        
         refetch();
         fetchCategories(); // Also refresh categories
       });
@@ -289,7 +286,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
     
     // Check if we have a stored guest session
     if (storedGuestSession && storedGuestSession.tableNumber === tableNumber && storedGuestSession.isActive && isValidTenant) {
-      console.log('Found stored guest session, restoring...');
+      
       setCustomerSession(storedGuestSession as any);
       setShowWelcome(false);
       setShowCustomerForm(false);
@@ -309,18 +306,15 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
     // Only run once when guest session is ready
     if (tableNumber && guestSession && !isInitialized) {
       setIsCheckingSession(true);
-      console.log('Checking for active session on table:', tableNumber);
-      
+
       // Check backend for active customer session
       const checkActiveSession = async () => {
         try {
-          console.log('Fetching active session for table:', tableNumber);
-          const data = await guestApiService.getActiveCustomerSession(tableNumber) as any;
-          console.log('Response data:', data);
           
+          const data = await guestApiService.getActiveCustomerSession(tableNumber) as any;
+
           if (data && data.activeSession) {
-              console.log('Found active customer session:', data.activeSession.customerName);
-              
+
               // Show confirmation dialog
               const shouldResume = window.confirm(
                 `Customer session in progress for ${data.activeSession.customerName}.\n` +
@@ -346,14 +340,14 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
                 useAuthStore.getState().clearCustomerSession();
               }
             } else {
-              console.log('No active session found, showing welcome screen');
+              
               // No active session, show normal flow
               useAuthStore.getState().clearCustomerSession();
               setShowWelcome(true);
               setShowCustomerForm(true);
             }
         } catch (error) {
-          console.error('Error checking customer session:', error);
+          
           // On error, show normal flow
           setShowWelcome(true);
           setShowCustomerForm(true);
@@ -495,7 +489,6 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
     }
   };
 
-
   // Handle table service request
   const handleTableServiceRequest = async (request: { type: string; details?: string }) => {
     const message = request.details 
@@ -548,7 +541,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
         message: `Hello ${details.name}, enjoy your dining experience!`
       });
     } catch (error) {
-      console.error('Error submitting customer details:', error);
+      
       addNotification({
         type: 'error',
         title: 'Error',
@@ -648,7 +641,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
         setShowFeedback(true);
       }, 5000);
     } catch (error) {
-      console.error('Checkout error:', error);
+      
       addNotification({
         type: 'error',
         title: 'Payment Failed',
@@ -687,7 +680,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
       }, 2000);
       
     } catch (error) {
-      console.error('Error submitting feedback:', error);
+      
       addNotification({
         type: 'error',
         title: 'Error',
@@ -721,7 +714,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
   const handleLogout = async () => {
     // For guest mode, we don't have logout
     // This function is kept for compatibility but does nothing
-    console.log('Logout not available in guest mode');
+    
   };
 
   // Format categories for CategorySidebar

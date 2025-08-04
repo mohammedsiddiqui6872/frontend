@@ -121,7 +121,7 @@ export const AIAssistantModal: React.FC<AIAssistantModalProps> = ({ t }) => {
       };
       
       recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
+        
         setIsListening(false);
         
         if (event.error === 'not-allowed') {
@@ -143,7 +143,7 @@ export const AIAssistantModal: React.FC<AIAssistantModalProps> = ({ t }) => {
       }, 10000);
       
     } catch (error) {
-      console.error('Microphone access error:', error);
+      
       alert('Please allow microphone access to use voice commands.');
       setIsListening(false);
     }

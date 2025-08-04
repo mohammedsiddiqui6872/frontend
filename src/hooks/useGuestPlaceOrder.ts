@@ -59,8 +59,7 @@ export const useGuestPlaceOrder = ({ tableNumber, customerSessionId }: PlaceOrde
       });
     },
     onError: (error: any) => {
-      console.error('Order placement error:', error);
-      
+
       let errorMessage = 'Failed to place order. Please try again.';
       
       // Handle specific error cases

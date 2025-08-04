@@ -149,7 +149,6 @@ class ErrorHandlerService {
 
   // Log errors for monitoring
   public logError(error: Error | unknown, context?: ErrorContext): void {
-    console.error('Error logged:', error, context);
 
     // Add to queue
     if (error instanceof Error) {
