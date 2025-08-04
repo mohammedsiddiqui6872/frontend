@@ -5,6 +5,8 @@
  * without requiring authentication. Perfect for tablets and QR code access.
  */
 
+import { getCurrentTenant } from './tenant.config';
+
 export interface GuestConfig {
   tableNumber: string;
   deviceType: 'tablet' | 'mobile' | 'desktop';
@@ -33,11 +35,15 @@ export function initializeGuestSession(tableNumber: string): GuestConfig {
   const deviceType = detectDeviceType();
   const hostname = window.location.hostname;
   const subdomain = hostname.split('.')[0];
-  const tenantId = subdomain || 'default';
+  
+  // Get the proper tenant configuration
+  const tenant = getCurrentTenant();
+  const tenantId = tenant?.tenantId || `rest_${subdomain}_001`;
   
   console.log('[GUEST-CONFIG] Device type detected:', deviceType);
   console.log('[GUEST-CONFIG] Hostname:', hostname);
-  console.log('[GUEST-CONFIG] Subdomain/TenantId:', tenantId);
+  console.log('[GUEST-CONFIG] Subdomain:', subdomain);
+  console.log('[GUEST-CONFIG] TenantId:', tenantId);
   
   const config: GuestConfig = {
     tableNumber,
