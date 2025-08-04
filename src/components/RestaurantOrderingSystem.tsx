@@ -5,6 +5,7 @@ import { Utensils, UtensilsCrossed, Cake, Coffee, Pizza, Wine, Beer, Drumstick, 
 import { useAuthStore } from '../stores/authStore';
 import { useCartStore, MenuItem } from '../stores/cartStore';
 import { useUIStore } from '../stores/uiStore';
+import { useGuestStore } from '../stores/guestStore';
 import { useGuestMenu } from '../hooks/useGuestMenu';
 import { useOrders } from '../hooks/useOrders';
 import { useNotifications } from '../hooks/useNotifications';
@@ -99,8 +100,15 @@ interface RestaurantOrderingSystemInnerProps {
 const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps> = ({ tableNumber }) => {
   // Initialize guest session
   console.log('[RESTAURANT-ORDERING] Initializing with table:', tableNumber);
+  const { guestSession: storedGuestSession, setGuestSession: setStoredGuestSession, clearGuestSession: clearStoredGuestSession } = useGuestStore();
   const [guestSession] = useState(() => {
-    console.log('[RESTAURANT-ORDERING] Creating guest session...');
+    console.log('[RESTAURANT-ORDERING] Checking for stored guest session...');
+    // Check if we have a stored session for the same table
+    if (storedGuestSession && storedGuestSession.tableNumber === tableNumber) {
+      console.log('[RESTAURANT-ORDERING] Using stored guest session:', storedGuestSession);
+      return storedGuestSession;
+    }
+    console.log('[RESTAURANT-ORDERING] Creating new guest session...');
     const session = initializeGuestSession(tableNumber);
     console.log('[RESTAURANT-ORDERING] Guest session created:', session);
     return session;
@@ -250,6 +258,25 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
 
   // Handle guest session state
   useEffect(() => {
+    // Check if we have a stored guest session
+    if (storedGuestSession && storedGuestSession.tableNumber === tableNumber && storedGuestSession.isActive) {
+      console.log('Found stored guest session, restoring...');
+      setCustomerSession(storedGuestSession as any);
+      setShowWelcome(false);
+      setShowCustomerForm(false);
+      setIsInitialized(true);
+      setIsCheckingSession(false);
+      // Restore customer name to auth store
+      if (storedGuestSession.customerName) {
+        useAuthStore.getState().setCustomerName(storedGuestSession.customerName);
+      }
+      if (storedGuestSession.sessionId) {
+        useAuthStore.getState().setCustomerSession(storedGuestSession.sessionId);
+      }
+      fetchCategories();
+      return;
+    }
+    
     // Only run once when guest session is ready
     if (tableNumber && guestSession && !isInitialized) {
       setIsCheckingSession(true);
@@ -310,7 +337,7 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
       checkActiveSession();
       fetchCategories(); // Fetch categories when authenticated
     }
-  }, [tableNumber, guestSession, isInitialized]);
+  }, [tableNumber, guestSession, isInitialized, storedGuestSession]);
   
   // Handle customer form reset when welcome screen is shown
   useEffect(() => {
@@ -468,6 +495,17 @@ const RestaurantOrderingSystemInner: React.FC<RestaurantOrderingSystemInnerProps
       const sessionWithActive = { ...data.session, isActive: true };
       setCustomerSession(sessionWithActive);
       setShowCustomerForm(false);
+      
+      // Store the guest session persistently
+      setStoredGuestSession({
+        sessionId: data.session._id || data.session.sessionId,
+        customerName: details.name,
+        customerPhone: details.phone,
+        tableNumber: tableNumber,
+        tenantId: data.session.tenantId,
+        isActive: true,
+        startTime: new Date(data.session.startTime || Date.now())
+      });
       
       // Update auth store with customer name and session ID
       useAuthStore.getState().setCustomerName(details.name);
