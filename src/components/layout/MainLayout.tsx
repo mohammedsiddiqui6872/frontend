@@ -21,12 +21,16 @@ export const MainLayout: React.FC<MainLayoutProps> = memo(({ children }) => {
   
   const handleCallWaiter = () => {
     // Default implementation - can be overridden by context
-    console.log('Call waiter requested');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Call waiter requested');
+    }
   };
   
   const handleRequestBill = () => {
     // Default implementation - can be overridden by context
-    console.log('Bill requested');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Bill requested');
+    }
   };
 
   return (

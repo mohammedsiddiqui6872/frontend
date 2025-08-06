@@ -1,0 +1,2257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRIT Restaurant - Next Generation Ordering Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --dark-secondary: #1e293b;
+            --light: #f8fafc;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --border: rgba(139, 92, 246, 0.2);
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+        
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .loading-container {
+            text-align: center;
+        }
+        
+        .loading-logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+        
+        .loading-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid transparent;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-ring:nth-child(2) {
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+            border-top-color: var(--secondary);
+            animation-duration: 0.8s;
+            animation-direction: reverse;
+        }
+        
+        .loading-ring:nth-child(3) {
+            width: 60%;
+            height: 60%;
+            top: 20%;
+            left: 20%;
+            border-top-color: var(--accent);
+            animation-duration: 0.6s;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 1.5s ease infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Background Effects */
+        .bg-gradient {
+            position: fixed;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 50% 100%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+            animation: gradientShift 20s ease infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            33% { transform: rotate(120deg) scale(1.1); }
+            66% { transform: rotate(240deg) scale(0.9); }
+        }
+        
+        .particles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float-up 10s linear infinite;
+        }
+        
+        @keyframes float-up {
+            from {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            to {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+        
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            transition: transform 0.3s ease;
+        }
+        
+        .header.hidden {
+            transform: translateY(-100%);
+        }
+        
+        .header-content {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            animation: logoFloat 3s ease infinite;
+        }
+        
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .nav-item {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            color: var(--primary);
+        }
+        
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-item:hover::after {
+            width: 100%;
+        }
+        
+        .cart-button {
+            position: relative;
+            background: var(--gradient-primary);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .cart-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            animation: cartPulse 2s ease infinite;
+        }
+        
+        @keyframes cartPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* Main Container */
+        .main-container {
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+            position: relative;
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            padding: 60px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: titleGlow 3s ease infinite;
+        }
+        
+        @keyframes titleGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+        
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+        
+        .hero-cta {
+            display: inline-flex;
+            gap: 20px;
+        }
+        
+        .cta-button {
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-primary {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+        }
+        
+        .cta-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+        
+        .cta-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        /* Category Filter */
+        .category-filter {
+            padding: 20px 30px;
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 80px;
+            z-index: 900;
+        }
+        
+        .category-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) transparent;
+        }
+        
+        .category-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .category-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .category-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+        
+        .category-chip {
+            padding: 10px 24px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .category-chip:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .category-chip.active {
+            background: var(--gradient-primary);
+            border-color: transparent;
+            color: white;
+            animation: chipGlow 2s ease infinite;
+        }
+        
+        @keyframes chipGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.5); }
+        }
+        
+        /* Menu Grid */
+        .menu-section {
+            padding: 40px 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            animation: fadeInUp 0.6s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .menu-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 30px 60px rgba(139, 92, 246, 0.2);
+            border-color: var(--primary);
+        }
+        
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(139, 92, 246, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+            opacity: 0;
+        }
+        
+        .menu-card:hover::before {
+            animation: shimmer 0.6s ease;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
+        }
+        
+        .menu-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .menu-card:hover .menu-image {
+            transform: scale(1.1);
+        }
+        
+        .menu-content {
+            padding: 20px;
+        }
+        
+        .menu-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--gradient-accent);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .menu-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        
+        .menu-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .menu-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .menu-price {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .add-to-cart {
+            background: var(--gradient-primary);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .add-to-cart:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+        
+        .add-to-cart:active {
+            transform: scale(0.95);
+        }
+        
+        /* Cart Sidebar */
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid var(--border);
+            z-index: 2000;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .cart-sidebar.open {
+            right: 0;
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        .cart-header {
+            padding: 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .cart-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .close-cart {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .close-cart:hover {
+            color: var(--primary);
+        }
+        
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .cart-item {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            animation: slideInRight 0.3s ease;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .cart-item-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+        
+        .cart-item-details {
+            flex: 1;
+        }
+        
+        .cart-item-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .cart-item-price {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        .cart-item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .quantity-btn {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid var(--border);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            color: var(--primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .quantity-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .cart-footer {
+            padding: 30px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        
+        .cart-total-label {
+            color: var(--text-secondary);
+        }
+        
+        .cart-total-value {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .checkout-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .checkout-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+        
+        .checkout-btn:hover::after {
+            width: 400px;
+            height: 400px;
+        }
+        
+        .checkout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.3);
+        }
+        
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1500;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-weight: 600;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 3000;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        /* Search Bar */
+        .search-section {
+            padding: 20px 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .search-container {
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 18px 60px 18px 25px;
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+        }
+        
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-size: 20px;
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 40px 30px;
+            background: rgba(15, 23, 42, 0.8);
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-link:hover {
+            color: var(--primary);
+        }
+        
+        .footer-copyright {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .cart-sidebar {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .nav-menu {
+                display: none;
+            }
+            
+            .category-container {
+                gap: 10px;
+            }
+            
+            .category-chip {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Games Section */
+        .games-section {
+            padding: 60px 30px;
+            background: rgba(30, 41, 59, 0.3);
+            border-top: 1px solid var(--border);
+        }
+        
+        .games-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .games-title {
+            font-size: 3rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 15px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .games-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-bottom: 50px;
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        
+        .game-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
+            border-color: var(--primary);
+        }
+        
+        .game-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--text-primary);
+        }
+        
+        .game-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        /* Tic Tac Toe Styles */
+        .tictactoe-board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            background: var(--primary);
+            padding: 5px;
+            border-radius: 15px;
+        }
+        
+        .ttt-cell {
+            background: var(--dark);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-primary);
+        }
+        
+        .ttt-cell:hover:not(.ttt-cell-x):not(.ttt-cell-o) {
+            background: rgba(139, 92, 246, 0.2);
+            transform: scale(0.95);
+        }
+        
+        .ttt-cell-x {
+            color: var(--primary);
+            animation: popIn 0.3s ease;
+        }
+        
+        .ttt-cell-o {
+            color: var(--secondary);
+            animation: popIn 0.3s ease;
+        }
+        
+        .ttt-cell.winner {
+            background: rgba(16, 185, 129, 0.3);
+            animation: winnerPulse 1s ease infinite;
+        }
+        
+        @keyframes popIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes winnerPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 30px rgba(16, 185, 129, 0.8);
+            }
+        }
+        
+        .game-status {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: center;
+        }
+        
+        .game-reset-btn {
+            padding: 12px 30px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .game-reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+        
+        /* Memory Game Styles */
+        .memory-board {
+            display: grid;
+            grid-template-columns: repeat(4, 70px);
+            grid-template-rows: repeat(3, 70px);
+            gap: 10px;
+            padding: 20px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 15px;
+        }
+        
+        .memory-card {
+            background: var(--gradient-primary);
+            border-radius: 10px;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        
+        .memory-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .memory-card.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .memory-card.matched {
+            animation: matchedPulse 0.6s ease;
+            opacity: 0.7;
+            cursor: default;
+        }
+        
+        @keyframes matchedPulse {
+            0%, 100% {
+                transform: scale(1) rotateY(180deg);
+            }
+            50% {
+                transform: scale(1.1) rotateY(180deg);
+            }
+        }
+        
+        .memory-card-front,
+        .memory-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+        
+        .memory-card-front {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        .memory-card-back {
+            background: var(--dark);
+            transform: rotateY(180deg);
+            border: 2px solid var(--border);
+        }
+        
+        .game-stats {
+            display: flex;
+            gap: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        /* Spinner Game Styles */
+        .spinner-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+        }
+        
+        .spinner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .spinner-section {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: right bottom;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 10px;
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+            background: var(--color);
+            transform: rotate(calc(60deg * var(--i)));
+        }
+        
+        .spinner-arrow {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid var(--danger);
+            z-index: 10;
+        }
+        
+        .spinner-result {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: center;
+            min-height: 30px;
+        }
+        
+        .spinner-btn {
+            background: var(--gradient-secondary);
+        }
+        
+        /* Quiz Game Styles */
+        .quiz-container {
+            width: 100%;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .quiz-question {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: center;
+            padding: 20px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 15px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .quiz-option {
+            padding: 15px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        .quiz-option:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .quiz-option.correct {
+            background: rgba(16, 185, 129, 0.3);
+            border-color: var(--success);
+            animation: correctAnswer 0.6s ease;
+        }
+        
+        .quiz-option.incorrect {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: var(--danger);
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes correctAnswer {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .quiz-score {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--dark-secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-container">
+            <div class="loading-logo">
+                <div class="loading-ring"></div>
+                <div class="loading-ring"></div>
+                <div class="loading-ring"></div>
+            </div>
+            <div class="loading-text">Preparing Your Experience...</div>
+        </div>
+    </div>
+    
+    <!-- Background Effects -->
+    <div class="bg-gradient"></div>
+    <div class="particles" id="particles"></div>
+    
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">G</div>
+                <div class="logo-text">GRIT Restaurant</div>
+            </div>
+            <nav class="nav-menu">
+                <a href="#menu" class="nav-item">Menu</a>
+                <a href="#about" class="nav-item">About</a>
+                <a href="#contact" class="nav-item">Contact</a>
+                <a href="#reservations" class="nav-item">Reservations</a>
+            </nav>
+            <button class="cart-button" onclick="toggleCart()">
+                <span>🛒</span>
+                <span>Cart</span>
+                <span class="cart-count" id="cartCount">0</span>
+            </button>
+        </div>
+    </header>
+    
+    <!-- Main Container -->
+    <main class="main-container">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1 class="hero-title">Welcome to GRIT</h1>
+            <p class="hero-subtitle">Experience dining reimagined with our revolutionary ordering system</p>
+            <div class="hero-cta">
+                <button class="cta-button cta-primary" onclick="scrollToMenu()">Order Now</button>
+                <button class="cta-button cta-secondary" onclick="viewReservations()">Book a Table</button>
+            </div>
+        </section>
+        
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search for your favorite dishes..." id="searchInput">
+                <span class="search-icon">🔍</span>
+            </div>
+        </section>
+        
+        <!-- Category Filter -->
+        <section class="category-filter">
+            <div class="category-container" id="categoryContainer">
+                <div class="category-chip active" data-category="all">All Items</div>
+                <div class="category-chip" data-category="appetizers">🥗 Appetizers</div>
+                <div class="category-chip" data-category="mains">🍖 Main Courses</div>
+                <div class="category-chip" data-category="pizza">🍕 Pizza</div>
+                <div class="category-chip" data-category="burgers">🍔 Burgers</div>
+                <div class="category-chip" data-category="pasta">🍝 Pasta</div>
+                <div class="category-chip" data-category="sushi">🍣 Sushi</div>
+                <div class="category-chip" data-category="desserts">🍰 Desserts</div>
+                <div class="category-chip" data-category="beverages">🥤 Beverages</div>
+            </div>
+        </section>
+        
+        <!-- Menu Section -->
+        <section class="menu-section" id="menuSection">
+            <div class="menu-grid" id="menuGrid">
+                <!-- Menu items will be dynamically inserted here -->
+            </div>
+        </section>
+        <!-- Games Section -->
+        <section class="games-section" id="gamesSection">
+            <div class="games-container">
+                <h2 class="games-title">Play While You Wait</h2>
+                <p class="games-subtitle">Enjoy our interactive games while your delicious food is being prepared</p>
+                
+                <div class="games-grid">
+                    <!-- Tic Tac Toe Game -->
+                    <div class="game-card">
+                        <h3 class="game-name">Tic Tac Toe</h3>
+                        <div class="game-content">
+                            <div class="tictactoe-board" id="tictactoeBoard">
+                                <div class="ttt-cell" data-cell="0"></div>
+                                <div class="ttt-cell" data-cell="1"></div>
+                                <div class="ttt-cell" data-cell="2"></div>
+                                <div class="ttt-cell" data-cell="3"></div>
+                                <div class="ttt-cell" data-cell="4"></div>
+                                <div class="ttt-cell" data-cell="5"></div>
+                                <div class="ttt-cell" data-cell="6"></div>
+                                <div class="ttt-cell" data-cell="7"></div>
+                                <div class="ttt-cell" data-cell="8"></div>
+                            </div>
+                            <div class="game-status" id="gameStatus">Your turn! (X)</div>
+                            <button class="game-reset-btn" onclick="resetTicTacToe()">New Game</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Memory Game -->
+                    <div class="game-card">
+                        <h3 class="game-name">Memory Match</h3>
+                        <div class="game-content">
+                            <div class="memory-board" id="memoryBoard">
+                                <!-- Memory cards will be generated here -->
+                            </div>
+                            <div class="game-stats">
+                                <span>Moves: <span id="memoryMoves">0</span></span>
+                                <span>Pairs: <span id="memoryPairs">0</span>/6</span>
+                            </div>
+                            <button class="game-reset-btn" onclick="resetMemoryGame()">New Game</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Spinner Game -->
+                    <div class="game-card">
+                        <h3 class="game-name">Lucky Spinner</h3>
+                        <div class="game-content">
+                            <div class="spinner-container">
+                                <div class="spinner" id="spinner">
+                                    <div class="spinner-section" style="--i: 1; --color: #8b5cf6;">10% OFF</div>
+                                    <div class="spinner-section" style="--i: 2; --color: #ec4899;">Free Drink</div>
+                                    <div class="spinner-section" style="--i: 3; --color: #06b6d4;">5% OFF</div>
+                                    <div class="spinner-section" style="--i: 4; --color: #10b981;">Free Dessert</div>
+                                    <div class="spinner-section" style="--i: 5; --color: #f59e0b;">15% OFF</div>
+                                    <div class="spinner-section" style="--i: 6; --color: #ef4444;">Try Again</div>
+                                </div>
+                                <div class="spinner-arrow"></div>
+                            </div>
+                            <div class="spinner-result" id="spinnerResult">Spin to win a reward!</div>
+                            <button class="game-reset-btn spinner-btn" onclick="spinWheel()">SPIN!</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quiz Game -->
+                    <div class="game-card">
+                        <h3 class="game-name">Food Trivia</h3>
+                        <div class="game-content">
+                            <div class="quiz-container">
+                                <div class="quiz-question" id="quizQuestion">Click Start to begin!</div>
+                                <div class="quiz-options" id="quizOptions">
+                                    <!-- Options will be generated here -->
+                                </div>
+                                <div class="quiz-score">Score: <span id="quizScore">0</span></div>
+                            </div>
+                            <button class="game-reset-btn" onclick="startQuiz()">Start Quiz</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">GRIT Restaurant</div>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+                <a href="#" class="footer-link">Contact Us</a>
+                <a href="#" class="footer-link">Careers</a>
+            </div>
+            <div class="footer-copyright">
+                © 2024 GRIT Restaurant. All rights reserved.
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h2 class="cart-title">Your Cart</h2>
+            <button class="close-cart" onclick="toggleCart()">✕</button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Cart items will be dynamically inserted here -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span class="cart-total-label">Total:</span>
+                <span class="cart-total-value" id="cartTotal">0 AED</span>
+            </div>
+            <button class="checkout-btn" onclick="checkout()">Proceed to Checkout</button>
+        </div>
+    </div>
+    
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+    
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+    
+    <script>
+        // Menu Data
+        const menuItems = [
+            {
+                id: 1,
+                name: "Truffle Burger Deluxe",
+                description: "Premium beef patty with truffle aioli, caramelized onions, and aged cheddar",
+                price: 89,
+                category: "burgers",
+                image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400",
+                badge: "Chef's Special"
+            },
+            {
+                id: 2,
+                name: "Margherita Supreme",
+                description: "Fresh mozzarella, San Marzano tomatoes, and basil on our signature dough",
+                price: 75,
+                category: "pizza",
+                image: "https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?w=400",
+                badge: "Popular"
+            },
+            {
+                id: 3,
+                name: "Dragon Roll Sushi",
+                description: "Tempura shrimp, avocado, and eel with spicy mayo drizzle",
+                price: 95,
+                category: "sushi",
+                image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=400",
+                badge: "New"
+            },
+            {
+                id: 4,
+                name: "Carbonara Traditionale",
+                description: "Classic Roman pasta with guanciale, pecorino, and farm eggs",
+                price: 82,
+                category: "pasta",
+                image: "https://images.unsplash.com/photo-1612874742237-6526221588e3?w=400",
+                badge: "Authentic"
+            },
+            {
+                id: 5,
+                name: "Caesar Salad",
+                description: "Crisp romaine, parmesan, croutons, and our signature Caesar dressing",
+                price: 45,
+                category: "appetizers",
+                image: "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=400",
+                badge: "Healthy"
+            },
+            {
+                id: 6,
+                name: "Grilled Ribeye",
+                description: "300g premium ribeye with herb butter and seasonal vegetables",
+                price: 145,
+                category: "mains",
+                image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400",
+                badge: "Premium"
+            },
+            {
+                id: 7,
+                name: "Tiramisu",
+                description: "Classic Italian dessert with espresso-soaked ladyfingers and mascarpone",
+                price: 35,
+                category: "desserts",
+                image: "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400",
+                badge: "Must Try"
+            },
+            {
+                id: 8,
+                name: "Fresh Lemonade",
+                description: "House-made lemonade with fresh mint and seasonal fruits",
+                price: 22,
+                category: "beverages",
+                image: "https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=400",
+                badge: "Refreshing"
+            },
+            {
+                id: 9,
+                name: "BBQ Wings",
+                description: "Crispy chicken wings tossed in our signature BBQ sauce",
+                price: 55,
+                category: "appetizers",
+                image: "https://images.unsplash.com/photo-1608039829572-78524f79c4c7?w=400",
+                badge: "Spicy"
+            },
+            {
+                id: 10,
+                name: "Pepperoni Pizza",
+                description: "Classic pepperoni with mozzarella and our special tomato sauce",
+                price: 78,
+                category: "pizza",
+                image: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400",
+                badge: "Classic"
+            },
+            {
+                id: 11,
+                name: "Salmon Teriyaki",
+                description: "Grilled salmon glazed with teriyaki sauce, served with jasmine rice",
+                price: 115,
+                category: "mains",
+                image: "https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?w=400",
+                badge: "Healthy"
+            },
+            {
+                id: 12,
+                name: "Chocolate Lava Cake",
+                description: "Warm chocolate cake with molten center, served with vanilla ice cream",
+                price: 38,
+                category: "desserts",
+                image: "https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=400",
+                badge: "Decadent"
+            }
+        ];
+        
+        // Cart State
+        let cart = [];
+        let currentCategory = 'all';
+        let searchTerm = '';
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 2000);
+            
+            createParticles();
+            renderMenu();
+            setupEventListeners();
+            updateCartUI();
+        });
+        
+        // Create Particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Category Filters
+            document.querySelectorAll('.category-chip').forEach(chip => {
+                chip.addEventListener('click', (e) => {
+                    document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentCategory = e.target.dataset.category;
+                    renderMenu();
+                });
+            });
+            
+            // Search
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                searchTerm = e.target.value.toLowerCase();
+                renderMenu();
+            });
+            
+            // Scroll Effects
+            let lastScrollTop = 0;
+            window.addEventListener('scroll', () => {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const header = document.getElementById('header');
+                
+                if (scrollTop > lastScrollTop && scrollTop > 100) {
+                    header.classList.add('hidden');
+                } else {
+                    header.classList.remove('hidden');
+                }
+                lastScrollTop = scrollTop;
+            });
+        }
+        
+        // Render Menu
+        function renderMenu() {
+            const menuGrid = document.getElementById('menuGrid');
+            let filteredItems = menuItems;
+            
+            // Filter by category
+            if (currentCategory !== 'all') {
+                filteredItems = filteredItems.filter(item => item.category === currentCategory);
+            }
+            
+            // Filter by search
+            if (searchTerm) {
+                filteredItems = filteredItems.filter(item => 
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    item.description.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            menuGrid.innerHTML = filteredItems.map(item => `
+                <div class="menu-card" data-id="${item.id}">
+                    <img src="${item.image}" alt="${item.name}" class="menu-image">
+                    <div class="menu-content">
+                        <span class="menu-badge">${item.badge}</span>
+                        <h3 class="menu-title">${item.name}</h3>
+                        <p class="menu-description">${item.description}</p>
+                        <div class="menu-footer">
+                            <span class="menu-price">${item.price} AED</span>
+                            <button class="add-to-cart" onclick="addToCart(${item.id})">+</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Add to Cart
+        function addToCart(itemId) {
+            const item = menuItems.find(i => i.id === itemId);
+            const existingItem = cart.find(i => i.id === itemId);
+            
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({ ...item, quantity: 1 });
+            }
+            
+            updateCartUI();
+            showNotification(`${item.name} added to cart!`);
+            
+            // Animate cart button
+            const cartButton = document.querySelector('.cart-button');
+            cartButton.style.animation = 'none';
+            setTimeout(() => {
+                cartButton.style.animation = 'cartPulse 0.5s ease';
+            }, 10);
+        }
+        
+        // Update Cart UI
+        function updateCartUI() {
+            const cartCount = document.getElementById('cartCount');
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            
+            // Update count
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+            
+            // Update items
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Your cart is empty</p>';
+            } else {
+                cartItems.innerHTML = cart.map(item => `
+                    <div class="cart-item">
+                        <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+                        <div class="cart-item-details">
+                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-price">${item.price} AED</div>
+                            <div class="cart-item-quantity">
+                                <button class="quantity-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
+                                <span>${item.quantity}</span>
+                                <button class="quantity-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // Update total
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            cartTotal.textContent = `${total} AED`;
+        }
+        
+        // Update Quantity
+        function updateQuantity(itemId, change) {
+            const item = cart.find(i => i.id === itemId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    cart = cart.filter(i => i.id !== itemId);
+                }
+                updateCartUI();
+            }
+        }
+        
+        // Toggle Cart
+        function toggleCart() {
+            const cartSidebar = document.getElementById('cartSidebar');
+            const overlay = document.getElementById('overlay');
+            
+            cartSidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+        
+        // Checkout
+        function checkout() {
+            if (cart.length === 0) {
+                showNotification('Your cart is empty!');
+                return;
+            }
+            
+            showNotification('Processing your order...');
+            setTimeout(() => {
+                cart = [];
+                updateCartUI();
+                toggleCart();
+                showNotification('Order placed successfully! 🎉');
+            }, 2000);
+        }
+        
+        // Show Notification
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Scroll to Menu
+        function scrollToMenu() {
+            document.getElementById('menuSection').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // View Reservations
+        function viewReservations() {
+            showNotification('Reservation system coming soon!');
+        }
+        
+        // ============ GAMES SECTION ============
+        
+        // Tic Tac Toe Game
+        let tttBoard = ['', '', '', '', '', '', '', '', ''];
+        let tttCurrentPlayer = 'X';
+        let tttGameActive = true;
+        const tttWinConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+        
+        // Initialize Tic Tac Toe
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeTicTacToe();
+            initializeMemoryGame();
+        });
+        
+        function initializeTicTacToe() {
+            const cells = document.querySelectorAll('.ttt-cell');
+            cells.forEach((cell, index) => {
+                cell.addEventListener('click', () => handleTicTacToeClick(index));
+            });
+        }
+        
+        function handleTicTacToeClick(index) {
+            if (tttBoard[index] !== '' || !tttGameActive) return;
+            
+            // Player move
+            tttBoard[index] = tttCurrentPlayer;
+            updateTicTacToeDisplay();
+            
+            if (checkTicTacToeWin()) {
+                return;
+            }
+            
+            if (checkTicTacToeDraw()) {
+                return;
+            }
+            
+            // Switch to AI
+            tttCurrentPlayer = 'O';
+            document.getElementById('gameStatus').textContent = "AI is thinking...";
+            
+            // AI move with delay
+            setTimeout(() => {
+                if (tttGameActive) {
+                    makeAIMove();
+                    updateTicTacToeDisplay();
+                    
+                    if (!checkTicTacToeWin() && !checkTicTacToeDraw()) {
+                        tttCurrentPlayer = 'X';
+                        document.getElementById('gameStatus').textContent = "Your turn! (X)";
+                    }
+                }
+            }, 500);
+        }
+        
+        function makeAIMove() {
+            const availableCells = [];
+            tttBoard.forEach((cell, index) => {
+                if (cell === '') availableCells.push(index);
+            });
+            
+            if (availableCells.length > 0) {
+                // Simple AI: Check for winning move
+                for (let cell of availableCells) {
+                    tttBoard[cell] = 'O';
+                    if (checkWinForPlayer('O')) {
+                        return;
+                    }
+                    tttBoard[cell] = '';
+                }
+                
+                // Block player's winning move
+                for (let cell of availableCells) {
+                    tttBoard[cell] = 'X';
+                    if (checkWinForPlayer('X')) {
+                        tttBoard[cell] = 'O';
+                        return;
+                    }
+                    tttBoard[cell] = '';
+                }
+                
+                // Take center if available
+                if (tttBoard[4] === '') {
+                    tttBoard[4] = 'O';
+                    return;
+                }
+                
+                // Take random corner or side
+                const randomIndex = Math.floor(Math.random() * availableCells.length);
+                tttBoard[availableCells[randomIndex]] = 'O';
+            }
+        }
+        
+        function checkWinForPlayer(player) {
+            return tttWinConditions.some(condition => {
+                return condition.every(index => tttBoard[index] === player);
+            });
+        }
+        
+        function updateTicTacToeDisplay() {
+            const cells = document.querySelectorAll('.ttt-cell');
+            cells.forEach((cell, index) => {
+                cell.textContent = tttBoard[index];
+                cell.className = 'ttt-cell';
+                if (tttBoard[index] === 'X') {
+                    cell.classList.add('ttt-cell-x');
+                } else if (tttBoard[index] === 'O') {
+                    cell.classList.add('ttt-cell-o');
+                }
+            });
+        }
+        
+        function checkTicTacToeWin() {
+            for (let condition of tttWinConditions) {
+                const [a, b, c] = condition;
+                if (tttBoard[a] && tttBoard[a] === tttBoard[b] && tttBoard[a] === tttBoard[c]) {
+                    tttGameActive = false;
+                    highlightWinningCells(condition);
+                    const winner = tttBoard[a];
+                    document.getElementById('gameStatus').textContent = 
+                        winner === 'X' ? '🎉 You Win!' : '🤖 AI Wins!';
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        function highlightWinningCells(cells) {
+            cells.forEach(index => {
+                document.querySelectorAll('.ttt-cell')[index].classList.add('winner');
+            });
+        }
+        
+        function checkTicTacToeDraw() {
+            if (!tttBoard.includes('')) {
+                tttGameActive = false;
+                document.getElementById('gameStatus').textContent = "It's a Draw!";
+                return true;
+            }
+            return false;
+        }
+        
+        function resetTicTacToe() {
+            tttBoard = ['', '', '', '', '', '', '', '', ''];
+            tttCurrentPlayer = 'X';
+            tttGameActive = true;
+            document.getElementById('gameStatus').textContent = "Your turn! (X)";
+            updateTicTacToeDisplay();
+            document.querySelectorAll('.ttt-cell').forEach(cell => {
+                cell.classList.remove('winner');
+            });
+        }
+        
+        // Memory Game
+        let memoryCards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+        let canFlip = true;
+        const foodEmojis = ['🍕', '🍔', '🍜', '🍣', '🍰', '🥗'];
+        
+        function initializeMemoryGame() {
+            resetMemoryGame();
+        }
+        
+        function resetMemoryGame() {
+            const board = document.getElementById('memoryBoard');
+            board.innerHTML = '';
+            memoryCards = [];
+            flippedCards = [];
+            matchedPairs = 0;
+            moves = 0;
+            canFlip = true;
+            
+            // Create pairs
+            const cardPairs = [...foodEmojis, ...foodEmojis];
+            cardPairs.sort(() => Math.random() - 0.5);
+            
+            // Create card elements
+            cardPairs.forEach((emoji, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.emoji = emoji;
+                card.dataset.index = index;
+                card.innerHTML = `
+                    <div class="memory-card-front">?</div>
+                    <div class="memory-card-back">${emoji}</div>
+                `;
+                card.addEventListener('click', () => flipMemoryCard(card));
+                board.appendChild(card);
+                memoryCards.push(card);
+            });
+            
+            updateMemoryStats();
+        }
+        
+        function flipMemoryCard(card) {
+            if (!canFlip || card.classList.contains('flipped') || card.classList.contains('matched')) {
+                return;
+            }
+            
+            card.classList.add('flipped');
+            flippedCards.push(card);
+            
+            if (flippedCards.length === 2) {
+                canFlip = false;
+                moves++;
+                updateMemoryStats();
+                
+                setTimeout(() => {
+                    checkMemoryMatch();
+                }, 1000);
+            }
+        }
+        
+        function checkMemoryMatch() {
+            const [card1, card2] = flippedCards;
+            
+            if (card1.dataset.emoji === card2.dataset.emoji) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedPairs++;
+                
+                if (matchedPairs === 6) {
+                    setTimeout(() => {
+                        showNotification(`🎉 You won in ${moves} moves!`);
+                    }, 500);
+                }
+            } else {
+                card1.classList.remove('flipped');
+                card2.classList.remove('flipped');
+            }
+            
+            flippedCards = [];
+            canFlip = true;
+            updateMemoryStats();
+        }
+        
+        function updateMemoryStats() {
+            document.getElementById('memoryMoves').textContent = moves;
+            document.getElementById('memoryPairs').textContent = matchedPairs;
+        }
+        
+        // Spinner Game
+        let isSpinning = false;
+        const prizes = [
+            '10% OFF',
+            'Free Drink',
+            '5% OFF',
+            'Free Dessert',
+            '15% OFF',
+            'Try Again'
+        ];
+        
+        function spinWheel() {
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            const spinner = document.getElementById('spinner');
+            const resultDiv = document.getElementById('spinnerResult');
+            
+            // Random spin amount
+            const spins = 5 + Math.random() * 5;
+            const finalAngle = spins * 360 + Math.floor(Math.random() * 360);
+            
+            spinner.style.transform = `rotate(${finalAngle}deg)`;
+            resultDiv.textContent = 'Spinning...';
+            
+            setTimeout(() => {
+                const prizeIndex = Math.floor((finalAngle % 360) / 60);
+                const prize = prizes[prizeIndex];
+                
+                if (prize === 'Try Again') {
+                    resultDiv.textContent = `😅 ${prize}! Better luck next time!`;
+                } else {
+                    resultDiv.textContent = `🎉 Congratulations! You won: ${prize}`;
+                    showNotification(`🎁 ${prize} added to your rewards!`);
+                }
+                
+                isSpinning = false;
+            }, 4000);
+        }
+        
+        // Quiz Game
+        const quizQuestions = [
+            {
+                question: "Which country is famous for inventing pizza?",
+                options: ["France", "Italy", "Greece", "Spain"],
+                correct: 1
+            },
+            {
+                question: "What is the main ingredient in guacamole?",
+                options: ["Tomato", "Pepper", "Avocado", "Onion"],
+                correct: 2
+            },
+            {
+                question: "Which of these is a Japanese dish?",
+                options: ["Pad Thai", "Sushi", "Dim Sum", "Pho"],
+                correct: 1
+            },
+            {
+                question: "What spice is known as 'red gold'?",
+                options: ["Paprika", "Saffron", "Chili", "Turmeric"],
+                correct: 1
+            },
+            {
+                question: "What is the most consumed beverage in the world after water?",
+                options: ["Coffee", "Tea", "Juice", "Soda"],
+                correct: 1
+            }
+        ];
+        
+        let currentQuizQuestion = 0;
+        let quizScore = 0;
+        let quizActive = false;
+        
+        function startQuiz() {
+            currentQuizQuestion = 0;
+            quizScore = 0;
+            quizActive = true;
+            document.getElementById('quizScore').textContent = quizScore;
+            showQuizQuestion();
+        }
+        
+        function showQuizQuestion() {
+            if (currentQuizQuestion >= quizQuestions.length) {
+                endQuiz();
+                return;
+            }
+            
+            const question = quizQuestions[currentQuizQuestion];
+            const questionDiv = document.getElementById('quizQuestion');
+            const optionsDiv = document.getElementById('quizOptions');
+            
+            questionDiv.textContent = question.question;
+            optionsDiv.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'quiz-option';
+                button.textContent = option;
+                button.onclick = () => checkQuizAnswer(index);
+                optionsDiv.appendChild(button);
+            });
+        }
+        
+        function checkQuizAnswer(selectedIndex) {
+            if (!quizActive) return;
+            
+            const question = quizQuestions[currentQuizQuestion];
+            const options = document.querySelectorAll('.quiz-option');
+            
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            if (selectedIndex === question.correct) {
+                options[selectedIndex].classList.add('correct');
+                quizScore++;
+                document.getElementById('quizScore').textContent = quizScore;
+            } else {
+                options[selectedIndex].classList.add('incorrect');
+                options[question.correct].classList.add('correct');
+            }
+            
+            setTimeout(() => {
+                currentQuizQuestion++;
+                showQuizQuestion();
+            }, 1500);
+        }
+        
+        function endQuiz() {
+            quizActive = false;
+            const questionDiv = document.getElementById('quizQuestion');
+            const optionsDiv = document.getElementById('quizOptions');
+            
+            questionDiv.textContent = `Quiz Complete! You scored ${quizScore}/${quizQuestions.length}`;
+            optionsDiv.innerHTML = '';
+            
+            if (quizScore === quizQuestions.length) {
+                showNotification('🏆 Perfect score! You\'re a food expert!');
+            } else if (quizScore >= 3) {
+                showNotification('🎉 Great job! You know your food!');
+            } else {
+                showNotification('📚 Keep learning about food!');
+            }
+        }
+    </script>
+</body>
+</html>
